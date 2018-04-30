@@ -10,4 +10,4 @@ Tasks:
     * Create a template form to submit tutor session info
     * Enter data for a given student quickly
 * Simple way to view all entries in the database
-    * Search results - view all entries you have permission to see
+    * Search results - view all entries you have permission to see 
