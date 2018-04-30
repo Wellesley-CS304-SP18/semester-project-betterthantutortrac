@@ -28,6 +28,11 @@ def login():
         flash("Login successful")
     return render_template("login.html", **params)
 
+@app.route("/new_session/", methods=["GET", "POST"])
+def new_session(class_name):
+    params = {"title": class_name.title()}
+    return render_template("tutor_session.html", **params)
+
 @app.route("/test/", methods=["GET"])
 def test():
     params = {"title": "Test"}
