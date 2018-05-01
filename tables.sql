@@ -9,10 +9,10 @@ create table users(
        name varchar(50) not null,
        email varchar(50) not null,
        password varchar(50) not null,
-       permissions varchar(100) not null
+       permissions varchar(100) not null,
        year integer,
        bnumber char(9),
-       usertype enum('student', 'professor', 'admin', 'other)
+       usertype enum('student', 'professor', 'admin', 'other')
 )
 ENGINE = InnoDB;
 
