@@ -35,7 +35,7 @@ def login():
 def newSession():
     if request.method == "POST":
         username = request.form.get("username")
-        courseId = request.form.get("class")
+        courseId = request.form.get("course")
         sType = request.form.get("type")
         beginTime = str(datetime.now())
         endTime = str(datetime.now()) # need to update this
@@ -75,5 +75,17 @@ def getUserClasses():
     userData = interactions.findUsersByUsername(username)[0]
     userId = userData.get("pid")
     userCourses = interactions.findCoursesByStudent(userId)
-    return jsonify(userCourses)
+    formattedCourses = []
+    for course in userCourses:
+        courseData = {
+            "cid": course.get("cid"),
+            "name": "{dept} {num}-{section}".format(
+                dept=course.get("dept"),
+                num=course.get("coursenum"),
+                section=course.get("section")
+            )
+        }
+        formattedCourses.append(courseData)
+    dct = {"courses": sorted(formattedCourses, key=lambda c: c.get("name"))}
+    return jsonify(dct)
 

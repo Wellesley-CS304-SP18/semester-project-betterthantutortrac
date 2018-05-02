@@ -32,3 +32,9 @@ body {
 .card-form {
 	width: 80%;
 }
+.text-error {
+  color: red;
+}
+.text-success {
+  color: green;
+}

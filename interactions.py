@@ -37,9 +37,11 @@ def findUsersByName(name):
 
 def findUsersByEmail(email):
     try:
+        # emails are unique, so we can require a unique match
+        # e.g. al@wellesley.edu shouldn't return kkenneal@wellesley.edu
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from users where email like %s", ["%" + email + "%"])
+        curs.execute("select * from users where email=%s", [email])
         rows = curs.fetchall()
         return rows
     except Exception:
@@ -63,7 +65,8 @@ def findCoursesByStudent(pid):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from coursesTaken where studentId=%s", [pid])
+        curs.execute(
+            "select * from courses inner join coursesTaken on courses.cid=coursesTaken.courseId where studentId=%s", [pid])
         rows = curs.fetchall()
         return rows
     except Exception:
@@ -105,7 +108,9 @@ def insertUser(data):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into users (pid, name, email, password, permissions, year, bnumber, usertype) values (%s, %s, %s, %s, %s, %s, %s, %s)", [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
+        curs.execute(
+            "insert into users (pid, name, email, password, permissions, year, bnumber, usertype) values (%s, %s, %s, %s, %s, %s, %s, %s)", 
+            [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
         return True
     except:
         return False
@@ -114,7 +119,9 @@ def insertCourse(data):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses (cid, dept, coursenum, section, year, semester) values (%s, %s, %s, %s, %s, %s)", [data['cid'], data['dept'], data['coursenum'], data['section'], data['year'], data['semester']])
+        curs.execute(
+            "insert into courses (cid, dept, coursenum, section, year, semester) values (%s, %s, %s, %s, %s, %s)", 
+            [data['cid'], data['dept'], data['coursenum'], data['section'], data['year'], data['semester']])
         return True
     except Exception:
         return False
