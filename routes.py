@@ -9,7 +9,7 @@ import interactions
 # import dbconn2
 from app import app
 from datetime import datetime
-from flask import render_template, flash, request, redirect, url_for, session
+from flask import render_template, flash, request, redirect, url_for, session, jsonify
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
@@ -46,9 +46,16 @@ def newSession():
     return render_template("newSession.html", **params)
 
 @app.route("/view_sessions/", methods=["GET"])
-def view_sessions():
+def viewSessions():
     conn = "" #dbconn2.connect(DSN)
     sessions = interactions.findAllSessions(conn)
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
     return render_template("viewSessions.html", **params)
+
+@app.route("/getUserClasses/", methods=["POST"])
+def getUserClasses():
+    username = request.form.get("username")
+    json_obj = {"tt": tt, "average": avg}
+    return jsonify(json_obj)
+
