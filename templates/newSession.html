@@ -54,34 +54,26 @@
 {% endblock %}
 
 {% block js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.js"></script>
-
 <script>
 $(document).ready( function() {
   
-  var validateUserUrl = "/validateUser/";
+  function validateUser (username) {
+    var validateUserUrl = "/validateUser/";
+    $.post(
+      validateUserUrl,
+      { "username": username },
+      function (data) {
+        return data.validate;
+      });
+  }
 
-  $.validator.addMethod("validUsername",
-    function (value, element) {
-      $.post(validateUserUrl,
-        { "username": value },
-        function (data) {
-          return data.validate;
-        });
-    },
-    "Please enter a valid username"
-  );
-
-  $("#commentForm").validate({
-    rules: {
-      username: {
-        validUsername: true
+  $("#username")
+    .on("input", function (event) {
+        var username = $(this).val();
+        var validUsername = validateUser(username);
+        console.log(validUsername);
       }
-    },
-    messages: {
-      username: "Invalid username"
-    }
-  });
+    );
 
 });
 </script>
