@@ -49,8 +49,7 @@ def findCoursesByName(dept, coursenum):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from courses where dept like %s and coursenum like %s", 
-                     ["%" + dept + "%", "%" + coursenum + "%"])
+        curs.execute("select * from courses where dept like %s and coursenum like %s", ["%" + dept + "%", "%" + coursenum + "%"])
         rows = curs.fetchall()
         return rows
     except:

@@ -6,10 +6,10 @@ description: routes for app
 """
 
 import interactions
-import dbconn2
+# import dbconn2
 from app import app
 from datetime import datetime
-from flask import render_template, flash, request, redirect, url_for, session
+from flask import render_template, flash, request, redirect, url_for, session, jsonify
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
@@ -31,24 +31,31 @@ def login():
         flash("Login successful")
     return render_template("login.html", **params)
 
-@app.route("/new_session/", methods=["GET", "POST"])
-def new_session():
+@app.route("/newSession/", methods=["GET", "POST"])
+def newSession():
     if request.method == "POST":
         username = request.form.get("username")
         course = request.form.get("class")
         s_type = request.form.get("type")
         begin_time = str(datetime.now())
         end_time = str(datetime.now()) # need to update this
-        conn = dbconn2.connect(DSN)
+        conn = "" #dbconn2.connect(DSN)
         interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
-    return render_template("new_session.html", **params)
+    return render_template("newSession.html", **params)
 
 @app.route("/view_sessions/", methods=["GET"])
-def view_sessions():
-    conn = dbconn2.connect(DSN)
+def viewSessions():
+    conn = "" #dbconn2.connect(DSN)
     sessions = interactions.findAllSessions(conn)
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
-    return render_template("view_sessions.html", **params)
+    return render_template("viewSessions.html", **params)
+
+@app.route("/getUserClasses/", methods=["POST"])
+def getUserClasses():
+    username = request.form.get("username")
+    json_obj = {"tt": tt, "average": avg}
+    return jsonify(json_obj)
+

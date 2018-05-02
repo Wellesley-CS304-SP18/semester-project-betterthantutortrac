@@ -22,7 +22,10 @@
             <i class="fas fa-graduation-cap"></i>
           </span>
         </div>
-	      <input type="text" name="class" class="form-control border border-left-0" placeholder="Enter what class this tutoring session is for">
+				<select class="form-control custom-select border border-left-0" id="class" 
+					name="class" readonly>
+					<option selected>Select a class</option>
+				</select>
       </div>
 
       <br>
@@ -34,7 +37,10 @@
             <i class="fas fa-users"></i> 
           </span>
         </div>
-				<input type="text" name="type" class="form-control border border-left-0" placeholder="Enter what type of tutoring this is for">
+				<select class="form-control custom-select border border-left-0" id="type" 
+					name="type" readonly>
+					<option selected>Select the type of tutoring session</option>
+				</select>
       </div>
 			
 			<br>
@@ -43,4 +49,10 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script>
+var url = "/"
+</script>
 {% endblock %}
