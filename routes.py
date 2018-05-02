@@ -31,8 +31,8 @@ def login():
         flash("Login successful")
     return render_template("login.html", **params)
 
-@app.route("/new_session/", methods=["GET", "POST"])
-def new_session():
+@app.route("/newSession/", methods=["GET", "POST"])
+def newSession():
     if request.method == "POST":
         username = request.form.get("username")
         course = request.form.get("class")
@@ -43,7 +43,7 @@ def new_session():
         interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
-    return render_template("new_session.html", **params)
+    return render_template("newSession.html", **params)
 
 @app.route("/view_sessions/", methods=["GET"])
 def view_sessions():
@@ -51,4 +51,4 @@ def view_sessions():
     sessions = interactions.findAllSessions(conn)
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
-    return render_template("view_sessions.html", **params)
+    return render_template("viewSessions.html", **params)

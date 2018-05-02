@@ -1,7 +1,12 @@
+-- filename: tables.sql --
+-- author: Kate Kenneally --
+-- last modified: 05/01/2018 --
+-- description: SQL table DDL --
+
 drop table if exists sessions;
 drop table if exists courses_taught;
 drop table if exists courses_taken;
-drop table if exists tutors;
+-- drop table if exists tutors; --
 drop table if exists courses;
 drop table if exists users;
 
@@ -27,40 +32,43 @@ create table courses(
 )
 ENGINE = InnoDB;
 
+/*
 create table tutors(
        tutor_id integer not null,
        tutee_id integer not null,
-       course_id integer not null,
+       courseId integer not null,
        type varchar(50),
        foreign key (tutor_id) references users(pid) on delete cascade,
        foreign key (tutee_id) references users(pid) on delete cascade,
-       foreign key (course_id) references courses(cid) on delete cascade
-)
+       foreign key (courseId) references courses(cid) on delete cascade
+) 
 ENGINE = InnoDB;
+*/
 
 create table courses_taken(
-       student_id integer not null,
-       course_id integer not null,
-       foreign key (student_id) references users(pid) on delete cascade,
-       foreign key (course_id) references courses(cid) on delete cascade
+       studentId integer not null,
+       courseId integer not null,
+       foreign key (studentId) references users(pid) on delete cascade,
+       foreign key (courseId) references courses(cid) on delete cascade
 )
 ENGINE = InnoDB;
 
 create table courses_taught(
-       prof_id integer not null,
-       course_id integer not null,
-       foreign key (prof_id) references users(pid) on delete cascade,
-       foreign key (course_id) references courses(cid) on delete cascade
+       profId integer not null,
+       courseId integer not null,
+       foreign key (profId) references users(pid) on delete cascade,
+       foreign key (courseId) references courses(cid) on delete cascade
 )
 ENGINE = InnoDB;
 
 create table sessions(
-       user_id integer not null,
-       course_id integer not null,
-       is_tutor enum('y','n'),
-       begin_time datetime,
-       end_time datetime,
-       foreign key (user_id) references users(pid) on delete cascade,
-       foreign key (course_id) references courses(cid) on delete cascade
+       userId integer not null,
+       courseId integer not null,
+       isTutor enum('y','n'),
+       beginTime datetime,
+       endTime datetime,
+       sessiontype varchar(50),
+       foreign key (userId) references users(pid) on delete cascade,
+       foreign key (courseId) references courses(cid) on delete cascade
 )
 ENGINE = InnoDB;
