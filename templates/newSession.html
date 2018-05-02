@@ -4,14 +4,16 @@
 {% block content %}
 <div class="card mx-auto card-form">
   <div class="card-body">
-    <form method="POST" action="" id="tutor_session">
+    <form method="POST" action="" id="newSession">
       <div class="input-group input-group-lg">
         <div class="input-group-prepend">
           <span class="input-group-text bg-white border border-right-0">
             <i class="fas fa-user"></i>
           </span>
         </div>
-        <input type="text" name="username" class="form-control border border-left-0" placeholder="Enter your Wellesley username">
+        <input type="text" id="username" name="username" class="form-control
+        border border-left-0" placeholder="Enter your Wellesley username"
+        required>
       </div>
       
       <br>
@@ -52,30 +54,32 @@
 {% endblock %}
 
 {% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.js"></script>
+
 <script>
-var validateUserUrl = "/validateUser/";
+$(document).ready( function() {
+  
+  var validateUserUrl = "/validateUser/";
 
-function validateUser(event) {
-  var username = $(this).val();
-  $.post(validateUserUrl,
-    { "username": username },
-    function (data) {
-      alert("hi");
-      return data.validate;
-    });
-}
-
-$("[name='username']")
-  .on("input", function (event) {
-      var username = $(this).val();
-      var validUsername = false;
+  $.validator.addMethod("validUsername",
+    function (value, element) {
       $.post(validateUserUrl,
-        { "username": username },
+        { "username": value },
         function (data) {
-          console.log(data.validate);
-          validUsername = data.validate;
+          return data.validate;
         });
-  }
-);
+    },
+    "Please enter a valid username"
+  );
+  $("#commentForm").validate();
+
+  $("[name='username']")
+    .on("input", function (event) {
+        var username = $(this).val();
+        var validUsername = false;
+      }
+  );
+
+});
 </script>
 {% endblock %}
