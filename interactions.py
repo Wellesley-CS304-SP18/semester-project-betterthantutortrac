@@ -49,8 +49,7 @@ def findCoursesByName(dept, coursenum):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from courses where dept like %s and coursenum like %s", 
-                     ["%" + dept + "%", "%" + coursenum + "%"])
+        curs.execute("select * from courses where dept like %s and coursenum like %s", ["%" + dept + "%", "%" + coursenum + "%"])
         rows = curs.fetchall()
         return rows
     except:
@@ -60,7 +59,7 @@ def findCoursesByStudent(pid):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from courses_taken where studentId=%s", [pid])
+        curs.execute("select * from coursesTaken where studentId=%s", [pid])
         rows = curs.fetchall()
         return rows
     except:
@@ -102,16 +101,17 @@ def insertUser(data):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into users (pid, name, email, password, permissions, year, bnumber, usertype values (%s, %s, %s, %s, %s, %s, %s, %s" [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
+        curs.execute("insert into users (pid, name, email, password, permissions, year, bnumber, usertype) values (%s, %s, %s, %s, %s, %s, %s, %s)", [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
         return True
-    except:
+    except Exception as err:
+        print err
         return False
 
 def insertCourse(data):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses (cid, dept, coursenum, section, year, semester) values (%s, %s, %s, %s, %s, %s" [data['cid'], data['dept'], data['coursenum'], data['section'], data['year'], data['semester']])
+        curs.execute("insert into courses (cid, dept, coursenum, section, year, semester) values (%s, %s, %s, %s, %s, %s)", [data['cid'], data['dept'], data['coursenum'], data['section'], data['year'], data['semester']])
         return True
     except:
         return False
@@ -120,7 +120,7 @@ def insertStudentCourse(pid, cid):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses_taken (studentId, courseId) values (%s, %s)" [pid, cid])
+        curs.execute("insert into coursesTaken (studentId, courseId) values (%s, %s)", [pid, cid])
         return True
     except:
         return False
@@ -129,7 +129,7 @@ def insertProfCourse(pid, cid):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses_taught (profId, courseId) values (%s, %s)" [pid, cid])
+        curs.execute("insert into coursesTaught (profId, courseId) values (%s, %s)", [pid, cid])
         return True
     except:
         return False
@@ -138,7 +138,7 @@ def insertSession(data):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype values (%s, %s, %s, %s, %s, %s)" [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
+        curs.execute("insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype) values (%s, %s, %s, %s, %s, %s)", [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
         return True
     except:
         return False
