@@ -40,8 +40,13 @@ def new_session():
         end_time = str(datetime.now()) # need to update this
         interactions.insertSession(username, course, s_type, begin_time, end_time)
         flash("Tutoring session entered successfully.")
-    params = {"title": class_name.title()}
+    params = {"title": "Insert a Tutoring Session"}
     return render_template("tutor_session.html", **params)
+
+@app.route("/view_sessions/", methods=["GET"])
+def view_sessions():
+    params = {"title": "View Tutoring Sessions"}
+    return render_template("view_sessions.html", **params)
 
 @app.route("/test/", methods=["GET"])
 def test():

@@ -40,6 +40,9 @@ description: basic html template that other html pages inherit from
 				<li class="nav-item {{ 'active' if active_page == 'new_session' else '' }}">
 					<a class="nav-link" href="{{ url_for('new_session') }}">Insert Session</a>
 				</li>
+				<li class="nav-item {{ 'active' if active_page == 'view_sessions' else '' }}">
+					<a class="nav-link" href="{{ url_for('view_sessions') }}">View Sessions</a>
+				</li>
 			</ul>
 			<form class="form-inline my-2 my-lg-0">
 				<div class="input-group">
