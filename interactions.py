@@ -113,8 +113,7 @@ def insertUser(data):
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute("insert into users (pid, name, email, password, permissions, year, bnumber, usertype) values (%s, %s, %s, %s, %s, %s, %s, %s)", [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
         return True
-    except Exception as err:
-        print err
+    except:
         return False
 
 def insertCourse(data):

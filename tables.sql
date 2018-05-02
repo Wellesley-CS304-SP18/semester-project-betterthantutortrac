@@ -4,8 +4,8 @@
 -- description: SQL table DDL --
 
 drop table if exists sessions;
-drop table if exists courses_taught;
-drop table if exists courses_taken;
+drop table if exists coursesTaught;
+drop table if exists coursesTaken;
 -- drop table if exists tutors; --
 drop table if exists courses;
 drop table if exists users;
@@ -34,18 +34,18 @@ ENGINE = InnoDB;
 
 /*
 create table tutors(
-       tutor_id integer not null,
-       tutee_id integer not null,
+       tutorId integer not null,
+       tuteeId integer not null,
        courseId integer not null,
        type varchar(50),
-       foreign key (tutor_id) references users(pid) on delete cascade,
-       foreign key (tutee_id) references users(pid) on delete cascade,
+       foreign key (tutorId) references users(pid) on delete cascade,
+       foreign key (tuteeId) references users(pid) on delete cascade,
        foreign key (courseId) references courses(cid) on delete cascade
 ) 
 ENGINE = InnoDB;
 */
 
-create table courses_taken(
+create table coursesTaken(
        studentId integer not null,
        courseId integer not null,
        foreign key (studentId) references users(pid) on delete cascade,
@@ -53,7 +53,7 @@ create table courses_taken(
 )
 ENGINE = InnoDB;
 
-create table courses_taught(
+create table coursesTaught(
        profId integer not null,
        courseId integer not null,
        foreign key (profId) references users(pid) on delete cascade,
