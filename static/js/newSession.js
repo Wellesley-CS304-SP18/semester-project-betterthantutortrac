@@ -20,7 +20,7 @@ $(document).ready( function() {
     var validUser = false;
     syncPost(validateUserUrl,
       { "username": username },
-      function (data) { validUser = data; }
+      function (data) { validUser = data.validate; }
     );
     return validUser;
   }
@@ -29,7 +29,7 @@ $(document).ready( function() {
     var userCourses;
     syncPost(userCoursesUrl,
       { "username": username },
-      function (data) { userCourses = data; }
+      function (data) { userCourses = data.courses; }
     );
     return userCourses;
   }
@@ -37,7 +37,7 @@ $(document).ready( function() {
   function getSessionTypes () {
     var sessionTypes;
     syncPost(userTypeUrl, {},
-      function (data) { sessionTypes = data; }
+      function (data) { sessionTypes = data.types; }
     );
     return sessionTypes;
   }
@@ -71,18 +71,20 @@ $(document).ready( function() {
     /* first, clear course select of previous data */
     resetSelect("#course", defaultCourseText);
     var userCourses = getUserCourses(username);
-    userCourses.each(function(course) {
+    for(i=0; i < userCourses.length; i++) {
+      course = userCourses[i];
       addOption("#course", course.id, course.name);
-    })
+    }
     $("#course").attr("readonly", false);
   }
 
   function addTypes () {
     resetSelect("#type", defaultTypeText);
     var sessionTypes = getSessionTypes();
-    sessionTypes.each(function(type) {
+    for(i=0; i < sessionTypes.length; i++) {
+      type = sessionTypes[i];
       addOption("#type", type, type);
-    })
+    }
     $("#type").attr("readonly", false);
   }
 

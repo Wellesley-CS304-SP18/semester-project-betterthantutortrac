@@ -50,8 +50,9 @@ def newSession():
             "beginTime": beginTime,
             "endTime": endTime,
             "sessiontype": sType}
-        interactions.insertSession(sessionData)
-        flash("Tutoring session entered successfully.")
+        insertData = interactions.insertSession(sessionData)
+        if insertData:
+            flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
     return render_template("newSession.html", **params)
 
@@ -66,7 +67,7 @@ def viewSessions():
 def validateUser():
     username = request.form.get("username")
     usersData = interactions.findUsersByUsername(username)
-    return len(usersData) == 1
+    return jsonify({"validate": len(usersData) == 1})
 
 @app.route("/getUserClasses/", methods=["POST"])
 def getUserClasses():
@@ -84,7 +85,7 @@ def getUserClasses():
         }
         formattedCourses.append(courseData)
     sortedCourses = sorted(formattedCourses, key=lambda c: c.get("name"))
-    return jsonify(sortedCourses)
+    return jsonify({"courses": sortedCourses})
 
 @app.route("/getSessionTypes/", methods=["POST"])
 def getSessionTypes():
@@ -95,5 +96,5 @@ def getSessionTypes():
         "Public Speaking Tutoring",
         "SI (Supplemental Instruction)"
     ]
-    return jsonify(sessionTypes)
+    return jsonify({"types": sessionTypes})
 

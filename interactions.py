@@ -148,7 +148,9 @@ def insertSession(data):
     try:
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype) values (%s, %s, %s, %s, %s, %s)", [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
+        curs.execute(
+            "insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype) values (%s, %s, %s, %s, %s, %s)", 
+            [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
         return True
     except Exception:
         return False
