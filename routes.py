@@ -5,11 +5,11 @@ last modified: 04/28/2018
 description: routes for app
 """
 
-from flask import render_template, flash, request, redirect, url_for, session
-from app import app
 import interactions
 import dbconn2
+from app import app
 from datetime import datetime
+from flask import render_template, flash, request, redirect, url_for, session
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
@@ -43,7 +43,7 @@ def new_session():
         interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
-    return render_template("tutor_session.html", **params)
+    return render_template("new_session.html", **params)
 
 @app.route("/view_sessions/", methods=["GET"])
 def view_sessions():
@@ -52,8 +52,3 @@ def view_sessions():
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
     return render_template("view_sessions.html", **params)
-
-@app.route("/test/", methods=["GET"])
-def test():
-    params = {"title": "Test"}
-    return render_template("test.html", **params)
