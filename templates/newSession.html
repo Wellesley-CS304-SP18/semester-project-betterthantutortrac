@@ -71,7 +71,17 @@ $(document).ready( function() {
     },
     "Please enter a valid username"
   );
-  $("#commentForm").validate();
+
+  $("#commentForm").validate({
+    rules: {
+      username: {
+        validUsername: true
+      }
+    },
+    messages: {
+      username: "Invalid username"
+    }
+  });
 
 });
 </script>
