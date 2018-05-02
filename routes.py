@@ -66,15 +66,13 @@ def viewSessions():
 def validateUser():
     username = request.form.get("username")
     usersData = interactions.findUsersByUsername(username)
-    dct = {"validate": len(usersData) == 1}  # verifies unique user
-    return jsonify(dct)
+    return len(usersData) == 1
 
 @app.route("/getUserClasses/", methods=["POST"])
 def getUserClasses():
     username = request.form.get("username")
     userData = interactions.findUsersByUsername(username)[0]
-    userId = userData.get("pid")
-    userCourses = interactions.findCoursesByStudent(userId)
+    userCourses = interactions.findCoursesByStudent(userData["pid"])
     formattedCourses = []
     for course in userCourses:
         courseData = {
@@ -82,10 +80,20 @@ def getUserClasses():
             "name": "{dept} {num}-{section}".format(
                 dept=course.get("dept"),
                 num=course.get("coursenum"),
-                section=course.get("section")
-            )
+                section=course.get("section"))
         }
         formattedCourses.append(courseData)
-    dct = {"courses": sorted(formattedCourses, key=lambda c: c.get("name"))}
-    return jsonify(dct)
+    sortedCourses = sorted(formattedCourses, key=lambda c: c.get("name"))
+    return jsonify(sortedCourses)
+
+@app.route("/getSessionTypes/", methods=["POST"])
+def getSessionTypes():
+    sessionTypes = [
+        "ASC (Academic Success Coordinator)", 
+        "Help Room", 
+        "PLTC Assigned Tutoring",
+        "Public Speaking Tutoring",
+        "SI (Supplemental Instruction)"
+    ]
+    return jsonify(sessionTypes)
 
