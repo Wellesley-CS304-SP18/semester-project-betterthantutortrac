@@ -5,10 +5,11 @@ last modified: 04/28/2018
 description: routes for app
 """
 
-from flask import render_template, flash, request, redirect, url_for, session
-from app import app
 import interactions
+from app import app
+
 from datetime import datetime
+from flask import render_template, flash, request, redirect, url_for, session
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
