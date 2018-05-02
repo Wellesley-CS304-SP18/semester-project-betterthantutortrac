@@ -1,3 +1,4 @@
+drop table if exists sessions;
 drop table if exists courses_taught;
 drop table if exists courses_taken;
 drop table if exists tutors;
@@ -49,6 +50,17 @@ create table courses_taught(
        prof_id integer not null,
        course_id integer not null,
        foreign key (prof_id) references users(pid) on delete cascade,
+       foreign key (course_id) references courses(cid) on delete cascade
+)
+ENGINE = InnoDB;
+
+create table sessions(
+       user_id integer not null,
+       course_id integer not null,
+       is_tutor enum('y','n'),
+       begin_time datetime,
+       end_time datetime,
+       foreign key (user_id) references users(pid) on delete cascade,
        foreign key (course_id) references courses(cid) on delete cascade
 )
 ENGINE = InnoDB;
