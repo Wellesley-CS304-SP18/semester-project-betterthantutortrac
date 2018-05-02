@@ -6,7 +6,7 @@ description: routes for app
 """
 
 import interactions
-# import dbconn2
+import dbconn2
 from app import app
 from datetime import datetime
 from flask import render_template, flash, request, redirect, url_for, session, jsonify
@@ -53,8 +53,16 @@ def viewSessions():
                 "sessions": sessions}
     return render_template("viewSessions.html", **params)
 
+@app.route("/validateUser/", methods=["POST"])
+def validateUser():
+    username = request.form.get("username")
+    userData = interactions.findUsersByUsername(username)
+    dct = {"validate": len(userData) == 1}
+    return jsonify(dct)
+
 @app.route("/getUserClasses/", methods=["POST"])
 def getUserClasses():
     username = request.form.get("username")
+    userData = interactions.findUsersByUsername(username)
     return jsonify(dict())
 
