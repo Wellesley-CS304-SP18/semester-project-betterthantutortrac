@@ -15,7 +15,7 @@ database = 'kkenneal_db' # for testing; update with project db later
 
 ### database connection functions ###
 
-def get_dsn(db):
+def getDsn(db):
     dsn = dbconn2.read_cnf()
     dsn['db'] = db
     return dsn
@@ -27,7 +27,7 @@ def getConn(dsn):
 
 def findUsersByName(name):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute("select * from users where name like %s", ["%" + name + "%"])
         rows = curs.fetchall()
@@ -37,7 +37,7 @@ def findUsersByName(name):
 
 def findUsersByEmail(email):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute("select * from users where email like %s", ["%" + email + "%"])
         rows = curs.fetchall()
@@ -47,7 +47,7 @@ def findUsersByEmail(email):
 
 def findCoursesByName(dept, coursenum):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute("select * from courses where dept like %s and coursenum like %s", 
                      ["%" + dept + "%", "%" + coursenum + "%"])
@@ -58,9 +58,9 @@ def findCoursesByName(dept, coursenum):
 
 def findCoursesByStudent(pid):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from courses_taken where student_id=%s", [pid])
+        curs.execute("select * from coursesTaken where studentId=%s", [pid])
         rows = curs.fetchall()
         return rows
     except:
@@ -68,7 +68,7 @@ def findCoursesByStudent(pid):
 
 def findAllSessions():
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute("select * from sessions")
         rows = curs.fetchall()
@@ -78,9 +78,9 @@ def findAllSessions():
 
 def findSessionsByStudent(pid):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from sessions where user_id=%s", [pid])
+        curs.execute("select * from sessions where userId=%s", [pid])
         rows = curs.fetchall()
         return rows
     except:
@@ -88,9 +88,9 @@ def findSessionsByStudent(pid):
 
 def findSessionsByCourse(cid):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from sessions where course_id=%s", [cid])
+        curs.execute("select * from sessions where courseId=%s", [cid])
         rows = curs.fetchall()
         return rows
     except:
@@ -100,45 +100,46 @@ def findSessionsByCourse(cid):
 
 def insertUser(data):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into users (pid, name, email, password, permissions, year, bnumber, usertype values (%s, %s, %s, %s, %s, %s, %s, %s" [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
+        curs.execute("insert into users (pid, name, email, password, permissions, year, bnumber, usertype) values (%s, %s, %s, %s, %s, %s, %s, %s)", [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['usertype']])
         return True
-    except:
+    except Exception as err:
+        print err
         return False
 
 def insertCourse(data):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses (cid, dept, coursenum, section, year, semester) values (%s, %s, %s, %s, %s, %s" [data['cid'], data['dept'], data['coursenum'], data['section'], data['year'], data['semester']])
+        curs.execute("insert into courses (cid, dept, coursenum, section, year, semester) values (%s, %s, %s, %s, %s, %s)", [data['cid'], data['dept'], data['coursenum'], data['section'], data['year'], data['semester']])
         return True
     except:
         return False
 
 def insertStudentCourse(pid, cid):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses_taken (student_id, course_id) values (%s, %s)" [pid, cid])
+        curs.execute("insert into coursesTaken (studentId, courseId) values (%s, %s)", [pid, cid])
         return True
     except:
         return False
 
 def insertProfCourse(pid, cid):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into courses_taught (prof_id, course_id) values (%s, %s)" [pid, cid])
+        curs.execute("insert into coursesTaught (profId, courseId) values (%s, %s)", [pid, cid])
         return True
     except:
         return False
 
 def insertSession(data):
     try:
-        conn = getConn(get_dsn(database))
+        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into sessions (user_id, course_id, is_tutor, begin_time, end_time, sessiontype values (%s, %s, %s, %s, %s, %s)" [data['user_id'], data['course_id'], data['is_tutor'], data['begin_time'], data['end_time'], data['sessiontype']])
+        curs.execute("insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype) values (%s, %s, %s, %s, %s, %s)", [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
         return True
     except:
         return False
