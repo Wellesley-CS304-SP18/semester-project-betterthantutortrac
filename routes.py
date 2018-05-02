@@ -6,7 +6,7 @@ description: routes for app
 """
 
 import interactions
-import dbconn2
+# import dbconn2
 from app import app
 from datetime import datetime
 from flask import render_template, flash, request, redirect, url_for, session
@@ -39,7 +39,7 @@ def new_session():
         s_type = request.form.get("type")
         begin_time = str(datetime.now())
         end_time = str(datetime.now()) # need to update this
-        conn = dbconn2.connect(DSN)
+        conn = "" #dbconn2.connect(DSN)
         interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
@@ -47,7 +47,7 @@ def new_session():
 
 @app.route("/view_sessions/", methods=["GET"])
 def view_sessions():
-    conn = dbconn2.connect(DSN)
+    conn = "" #dbconn2.connect(DSN)
     sessions = interactions.findAllSessions(conn)
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
