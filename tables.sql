@@ -1,7 +1,12 @@
+-- filename: tables.sql --
+-- author: Kate Kenneally --
+-- last modified: 05/01/2018 --
+-- description: SQL table DDL --
+
 drop table if exists sessions;
 drop table if exists courses_taught;
 drop table if exists courses_taken;
-drop table if exists tutors;
+-- drop table if exists tutors; --
 drop table if exists courses;
 drop table if exists users;
 
@@ -27,6 +32,7 @@ create table courses(
 )
 ENGINE = InnoDB;
 
+/*
 create table tutors(
        tutor_id integer not null,
        tutee_id integer not null,
@@ -35,8 +41,9 @@ create table tutors(
        foreign key (tutor_id) references users(pid) on delete cascade,
        foreign key (tutee_id) references users(pid) on delete cascade,
        foreign key (course_id) references courses(cid) on delete cascade
-)
+) 
 ENGINE = InnoDB;
+*/
 
 create table courses_taken(
        student_id integer not null,
@@ -60,6 +67,7 @@ create table sessions(
        is_tutor enum('y','n'),
        begin_time datetime,
        end_time datetime,
+       sessiontype varchar(50),
        foreign key (user_id) references users(pid) on delete cascade,
        foreign key (course_id) references courses(cid) on delete cascade
 )
