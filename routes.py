@@ -35,19 +35,28 @@ def login():
 def newSession():
     if request.method == "POST":
         username = request.form.get("username")
-        course = request.form.get("class")
+        courseId = request.form.get("class")
         sType = request.form.get("type")
         beginTime = str(datetime.now())
         endTime = str(datetime.now()) # need to update this
-        conn = "" #dbconn2.connect(DSN)
-        interactions.insertSession(conn, username, course, sType, beginTime, endTime)
+
+        userData = interactions.findUsersByUsername(username)[0]
+        userId = userData.get("pid")
+
+        sessionData = {
+            "userId": userId,
+            "courseId": courseId,
+            "isTutor": False,
+            "beginTime": beginTime,
+            "endTime": endTime,
+            "sessiontype": sType}
+        interactions.insertSession(sessionData)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
     return render_template("newSession.html", **params)
 
 @app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
-    conn = "" #dbconn2.connect(DSN)
     sessions = interactions.findAllSessions(conn)
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
@@ -56,13 +65,15 @@ def viewSessions():
 @app.route("/validateUser/", methods=["POST"])
 def validateUser():
     username = request.form.get("username")
-    userData = interactions.findUsersByUsername(username)
-    dct = {"validate": len(userData) == 1}
+    usersData = interactions.findUsersByUsername(username)
+    dct = {"validate": len(usersData) == 1}  # verifies unique user
     return jsonify(dct)
 
 @app.route("/getUserClasses/", methods=["POST"])
 def getUserClasses():
     username = request.form.get("username")
-    userData = interactions.findUsersByUsername(username)
-    return jsonify(dict())
+    userData = interactions.findUsersByUsername(username)[0]
+    userId = userData.get("pid")
+    userCourses = interactions.findCoursesByStudent(userId)
+    return jsonify(userCourses)
 

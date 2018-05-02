@@ -35,16 +35,6 @@ def findUsersByName(name):
     except Exception:
         return []
 
-def findUsersByUsername(username):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from users where username=%s", username)
-        rows = curs.fetchone()
-        return rows
-    except Exception:
-        return []
-
 def findUsersByEmail(email):
     try:
         conn = getConn(getDsn(database))
@@ -54,6 +44,10 @@ def findUsersByEmail(email):
         return rows
     except Exception:
         return []
+
+def findUsersByUsername(username):
+    email = username + "@wellesley.edu" # just a wrapper around the next fn
+    return findUsersByEmail(email)
 
 def findCoursesByName(dept, coursenum):
     try:
