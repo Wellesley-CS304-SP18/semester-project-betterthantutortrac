@@ -7,6 +7,8 @@ description: routes for app
 
 from flask import render_template, flash, request, redirect, url_for, session
 from app import app
+import interactions
+from datetime import datetime
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
@@ -28,8 +30,16 @@ def login():
         flash("Login successful")
     return render_template("login.html", **params)
 
-@app.route("/new_session/<class_name>", methods=["GET", "POST"])
-def new_session(class_name):
+@app.route("/new_session/", methods=["GET", "POST"])
+def new_session():
+    if request.method == "POST":
+        username = request.form.get("username")
+        course = request.form.get("class")
+        s_type = request.form.get("type")
+        begin_time = str(datetime.now())
+        end_time = str(datetime.now()) # need to update this
+        interactions.insertSession(username, course, s_type, begin_time, end_time)
+        flash("Tutoring session entered successfully.")
     params = {"title": class_name.title()}
     return render_template("tutor_session.html", **params)
 
