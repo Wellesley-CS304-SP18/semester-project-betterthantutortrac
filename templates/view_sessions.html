@@ -4,6 +4,13 @@
 {% block content %}
 <div> 
 	HELLO
+	<table>
+	{% for s in sessions %}
+	<tr>
+		{{s.uid}}, {{s.class}}, {{s.type}}
+	</tr>
+	{%endfor%}
+	<table>
 </div>
 <!-- <div class="card mx-auto card-form">
 	<div class="card-body">

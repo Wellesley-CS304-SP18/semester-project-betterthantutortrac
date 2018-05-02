@@ -8,6 +8,7 @@ description: routes for app
 from flask import render_template, flash, request, redirect, url_for, session
 from app import app
 import interactions
+import dbconn2
 from datetime import datetime
 
 @app.route("/", methods=["GET"])
@@ -38,14 +39,18 @@ def new_session():
         s_type = request.form.get("type")
         begin_time = str(datetime.now())
         end_time = str(datetime.now()) # need to update this
-        interactions.insertSession(username, course, s_type, begin_time, end_time)
+        conn = dbconn2.connect(DSN)
+        interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
     return render_template("tutor_session.html", **params)
 
 @app.route("/view_sessions/", methods=["GET"])
 def view_sessions():
-    params = {"title": "View Tutoring Sessions"}
+    conn = dbconn2.connect(DSN)
+    sessions = interactions.findAllSessions(conn)
+    params = {"title": "View Tutoring Sessions",
+                "sessions": sessions}
     return render_template("view_sessions.html", **params)
 
 @app.route("/test/", methods=["GET"])
