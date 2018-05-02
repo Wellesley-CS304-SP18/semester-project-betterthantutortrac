@@ -31,24 +31,24 @@ def login():
         flash("Login successful")
     return render_template("login.html", **params)
 
-@app.route("/new_session/", methods=["GET", "POST"])
-def new_session():
+@app.route("/newSession/", methods=["GET", "POST"])
+def newSession():
     if request.method == "POST":
         username = request.form.get("username")
         course = request.form.get("class")
-        s_type = request.form.get("type")
-        begin_time = str(datetime.now())
-        end_time = str(datetime.now()) # need to update this
+        sType = request.form.get("type")
+        beginTime = str(datetime.now())
+        endTime = str(datetime.now()) # need to update this
         conn = dbconn2.connect(DSN)
-        interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
+        interactions.insertSession(conn, username, course, sType, beginTime, endTime)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
-    return render_template("new_session.html", **params)
+    return render_template("newSession.html", **params)
 
-@app.route("/view_sessions/", methods=["GET"])
-def view_sessions():
+@app.route("/viewSessions/", methods=["GET"])
+def viewSessions():
     conn = dbconn2.connect(DSN)
     sessions = interactions.findAllSessions(conn)
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
-    return render_template("view_sessions.html", **params)
+    return render_template("viewSessions.html", **params)
