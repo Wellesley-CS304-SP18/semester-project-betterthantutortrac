@@ -13,7 +13,7 @@
         </div>
         <input type="text" id="username" name="username" class="form-control
         border border-left-0" placeholder="Enter your Wellesley username"
-        required>
+        validUsername required>
       </div>
       
       <br>
@@ -72,13 +72,6 @@ $(document).ready( function() {
     "Please enter a valid username"
   );
   $("#commentForm").validate();
-
-  $("[name='username']")
-    .on("input", function (event) {
-        var username = $(this).val();
-        var validUsername = false;
-      }
-  );
 
 });
 </script>
