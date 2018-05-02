@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% set active_page = "view_sessions" %}
+
+{% block content %}
+<div> 
+	HELLO
+	<table>
+	{% for s in sessions %}
+	<tr>
+		{{s.uid}}, {{s.class}}, {{s.type}}
+	</tr>
+	{%endfor%}
+	<table>
+</div>
+<!-- <div class="card mx-auto card-form">
+	<div class="card-body">
+    <form method="POST" action="" id="login">
+      <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border border-right-0">
+            <i class="fas fa-envelope"></i>
+          </span>
+        </div>
+				<input type="text" name="email" class="form-control border border-left-0" placeholder="wwellesley@wellesley.edu">
+      </div>
+			<br>
+      <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border border-right-0">
+            <i class="fas fa-key"></i>
+          </span>
+        </div>
+				<input type="password" name="password" class="form-control border border-left-0" placeholder="password">
+      </div>
+      <br>
+			<button type="submit" class="btn btn-primary btn-lg">Submit</button>
+    </form>
+	</div>
+</div> -->
+{% endblock %}
