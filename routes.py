@@ -36,16 +36,16 @@ def newSession():
     if request.method == "POST":
         username = request.form.get("username")
         course = request.form.get("class")
-        s_type = request.form.get("type")
-        begin_time = str(datetime.now())
-        end_time = str(datetime.now()) # need to update this
+        sType = request.form.get("type")
+        beginTime = str(datetime.now())
+        endTime = str(datetime.now()) # need to update this
         conn = "" #dbconn2.connect(DSN)
-        interactions.insertSession(conn, username, course, s_type, begin_time, end_time)
+        interactions.insertSession(conn, username, course, sType, beginTime, endTime)
         flash("Tutoring session entered successfully.")
     params = {"title": "Insert a Tutoring Session"}
     return render_template("newSession.html", **params)
 
-@app.route("/view_sessions/", methods=["GET"])
+@app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
     conn = "" #dbconn2.connect(DSN)
     sessions = interactions.findAllSessions(conn)
@@ -56,6 +56,5 @@ def viewSessions():
 @app.route("/getUserClasses/", methods=["POST"])
 def getUserClasses():
     username = request.form.get("username")
-    json_obj = {"tt": tt, "average": avg}
-    return jsonify(json_obj)
+    return jsonify(dict())
 
