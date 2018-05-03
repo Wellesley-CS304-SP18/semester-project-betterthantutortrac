@@ -11,7 +11,7 @@ import sys
 import MySQLdb
 import dbconn2
 
-database = 'kkenneal_db' # for testing; update with project db later
+database = 'plee3_db' # for testing; update with project db later
 
 ### database connection functions ###
 
@@ -77,6 +77,16 @@ def findAllSessions():
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute("select * from sessions")
+        rows = curs.fetchall()
+        return rows
+    except Exception:
+        return []
+
+def findAllSessions2(): # want student name, course name, and session type. fix up later.
+    try:
+        conn = getConn(getDsn(database))
+        curs = conn.cursor(MySQLdb.cursors.DictCursor)
+        curs.execute("select name, dept, coursenum, sessiontype from sessions inner join courses on (courseId=cid) inner join users on (userId=pid)")
         rows = curs.fetchall()
         return rows
     except Exception:
@@ -149,8 +159,12 @@ def insertSession(data):
         conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
         curs.execute(
-            "insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype) values (%s, %s, %s, %s, %s, %s)", 
-            [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
+            "insert into sessions (userId, courseId, isTutor, sessiontype) values (%s, %s, %s, %s)",
+            [data['userId'], data['courseId'], data['isTutor'], data['sessiontype']])
+#        curs.execute(
+#            "insert into sessions (userId, courseId, isTutor, beginTime, endTime, sessiontype) values (%s, %s, %s, %s, %s, %s)", 
+#            [data['userId'], data['courseId'], data['isTutor'], data['beginTime'], data['endTime'], data['sessiontype']])
         return True
     except Exception:
+        print "insert session exception", Exception
         return False

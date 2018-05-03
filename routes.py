@@ -35,30 +35,36 @@ def login():
 def newSession():
     if request.method == "POST":
         username = request.form.get("username")
-        courseId = request.form.get("course")
+        course = request.form.get("course")
         sType = request.form.get("type")
-        beginTime = str(datetime.now())
-        endTime = str(datetime.now()) # need to update this
 
         userData = interactions.findUsersByUsername(username)[0]
         userId = userData.get("pid")
 
-        sessionData = {
+
+        dept = course.split()[0]
+        coursenum = course.split()[1][0:3] # clean this up later
+        courseData = interactions.findCoursesByName(dept, coursenum)[0]
+        courseId = courseData.get("cid")
+
+        print "the cid for", dept, coursenum, "is", courseId
+
+        sessionData = { # add begin and end times later
             "userId": userId,
             "courseId": courseId,
-            "isTutor": False,
-            "beginTime": beginTime,
-            "endTime": endTime,
+            "isTutor": 'n', # update this later
             "sessiontype": sType}
         insertData = interactions.insertSession(sessionData)
         if insertData:
             flash("Tutoring session entered successfully.")
+        else:
+            flash("Failed to enter tutoring sessions.")
     params = {"title": "Insert a Tutoring Session"}
     return render_template("newSession.html", **params)
 
 @app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
-    sessions = interactions.findAllSessions()
+    sessions = interactions.findAllSessions2()
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
     print sessions

@@ -5,15 +5,15 @@
 <div> 
 	<table style="width:100%">		
 		<tr>
-			<th>User ID</th>
-			<th>Class ID</th>
+			<th>Student name</th>
+			<th>Course</th>
 			<th>Session type</th>
 		</tr>
 		{% for s in sessions %}
 		<tr>
-			<td>{{s.uid}}</td>
-			<td>{{s.class}}</td>
-			<td>{{s.type}}</td>
+			<td>{{s.name}}</td>
+			<td>{{s.dept}} {{s.coursenum}}</td>
+			<td>{{s.sessiontype}}</td>
 		</tr>
 		{%endfor%}
 	</table>
