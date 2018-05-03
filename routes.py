@@ -38,19 +38,22 @@ def newSession():
         course = request.form.get("class")
         sType = request.form.get("type")
         beginTime = str(datetime.now())
-        endTime = str(datetime.now()) # need to update this
-        conn = "" #dbconn2.connect(DSN)
-        interactions.insertSession(conn, username, course, sType, beginTime, endTime)
+        endTime = str(datetime.now()) # need to update endTime
+        # need to update this data dictionary as well
+        data = {'userId': username, 'courseId': course, 'isTutor': 'n', 
+                'beginTime': beginTime, 'endTime': endTime, 'sessiontype': sType}
+        interactions.insertSession(data)
         flash("Tutoring session entered successfully.")
+
     params = {"title": "Insert a Tutoring Session"}
     return render_template("newSession.html", **params)
 
 @app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
-    conn = "" #dbconn2.connect(DSN)
-    sessions = interactions.findAllSessions(conn)
+    sessions = interactions.findAllSessions()
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
+    print sessions
     return render_template("viewSessions.html", **params)
 
 @app.route("/getUserClasses/", methods=["POST"])
