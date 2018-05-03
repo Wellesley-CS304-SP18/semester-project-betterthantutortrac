@@ -17,6 +17,7 @@ def index():
     params = {"title": "Home"}
     return render_template("index.html", **params)
 
+# Note: login isn't quite working yet. Will make it into P4.
 @app.route("/login/", methods=["GET", "POST"])
 def login():
     # edit the following to make it work
@@ -40,7 +41,6 @@ def newSession():
 
         userData = interactions.findUsersByUsername(username)[0]
         userId = userData.get("pid")
-
 
         dept = course.split()[0]
         coursenum = course.split()[1][0:3] # clean this up later
