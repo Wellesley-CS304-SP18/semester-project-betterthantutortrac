@@ -34,13 +34,13 @@ description: basic html template that other html pages inherit from
 
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav mr-auto">
-				<li class="nav-item {{ 'active' if active_page == 'index' else '' }}">
+				<li class="nav-item {{ 'active' if active_page == 'index' }}">
 					<a class="nav-link" href="{{ url_for('index') }}">Home</a>
 				</li>
-				<li class="nav-item {{ 'active' if active_page == 'new_session' else '' }}">
+				<li class="nav-item {{ 'active' if active_page == 'new_session' }}">
 					<a class="nav-link" href="{{ url_for('newSession') }}">Insert Session</a>
 				</li>
-				<li class="nav-item {{ 'active' if active_page == 'viewSessions' else '' }}">
+				<li class="nav-item {{ 'active' if active_page == 'viewSessions' }}">
 					<a class="nav-link" href="{{ url_for('viewSessions') }}">View Sessions</a>
 				</li>
 			</ul>
