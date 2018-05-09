@@ -19,5 +19,6 @@ app.secret_key = getRandomKey()
 if __name__ == "__main__":
     print " * Key: " + app.secret_key  # print for debugging purposes
     app.debug = True
-    port = os.getuid()
+    #port = os.getuid()
+    port = 1943
     app.run("0.0.0.0", port)
