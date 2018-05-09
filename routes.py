@@ -67,7 +67,6 @@ def viewSessions():
     sessions = interactions.findAllSessions2()
     params = {"title": "View Tutoring Sessions",
                 "sessions": sessions}
-    print sessions
     return render_template("viewSessions.html", **params)
 
 @app.route("/validateUser/", methods=["POST"])
