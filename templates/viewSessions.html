@@ -13,6 +13,8 @@
 			<th>Session Type</th>
 			<th>Time in</th>
 			<th>Time out</th>
+			<th>Update</th>
+			<th>Delete</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -24,6 +26,8 @@
 			<td>{{s.sessiontype}}</td>
 			<td>...</td>
 			<td>...</td>
+			<td><button type="button" class="btn btn-primary" value="{{s.name}}">Update</button></td>
+			<td><button type="button" class="btn btn-danger" value="{{s.name}}">Delete</button></td>
 		</tr>
 		{%endfor%}
 		</tbody>
@@ -36,7 +40,12 @@
 <script>
 
 $(document).ready(function(){
-  $('#sessions-table').DataTable();
+$('#sessions-table').DataTable();
+
+$("button").click(function() {
+alert($(this).val());
+console.log($(this).val());
+});
 });
 
 </script>
