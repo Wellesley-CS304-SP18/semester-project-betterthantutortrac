@@ -22,12 +22,12 @@ app.config['CAS_VALIDATE_ROUTE'] = '/module.php/casserver/serviceValidate.php'
 
 @app.route('/logged_in/')
 def logged_in():
-    flash('successfully logged in!')
+    flash('Successfully logged in!')
     return redirect(url_for('index'))
 
 @app.route('/logged_out/')
 def logged_out():
-    flash('successfully logged out!')
+    flash('Successfully logged out!')
     return redirect(url_for('index'))
 
 @app.route("/", methods=["GET"])
@@ -75,41 +75,50 @@ def login():
 
 @app.route("/newSession/", methods=["GET", "POST"])
 def newSession():
-    if request.method == "POST":
-        username = request.form.get("username")
-        course = request.form.get("course")
-        sType = request.form.get("type")
+    if 'CAS_USERNAME' in session:
+        if request.method == "POST":
+            username = request.form.get("username")
+            course = request.form.get("course")
+            sType = request.form.get("type")
 
-        userData = interactions.findUsersByUsername(username)[0]
-        userId = userData.get("pid")
+            userData = interactions.findUsersByUsername(username)[0]
+            userId = userData.get("pid")
 
-        dept = course.split()[0]
-        coursenum = course.split()[1][0:3] # clean this up later
-        courseData = interactions.findCoursesByName(dept, coursenum)[0]
-        courseId = courseData.get("cid")
+            dept = course.split()[0]
+            coursenum = course.split()[1][0:3] # clean this up later
+            courseData = interactions.findCoursesByName(dept, coursenum)[0]
+            courseId = courseData.get("cid")
+            
+            print "the cid for", dept, coursenum, "is", courseId
 
-        print "the cid for", dept, coursenum, "is", courseId
-
-        sessionData = { # add begin and end times later
-            "userId": userId,
-            "courseId": courseId,
-            "isTutor": 'n', # update this later
-            "sessiontype": sType}
-        insertData = interactions.insertSession(sessionData)
-        if insertData:
-            flash("Tutoring session entered successfully.")
-        else:
-            flash("Failed to enter tutoring sessions.")
-    params = {"title": "Insert a Tutoring Session"}
-    return render_template("newSession.html", **params)
-
+            sessionData = { # add begin and end times later
+                "userId": userId,
+                "courseId": courseId,
+                "isTutor": 'n', # update this later
+                "sessiontype": sType}
+            insertData = interactions.insertSession(sessionData)
+            if insertData:
+                flash("Tutoring session entered successfully.")
+            else:
+                flash("Failed to enter tutoring sessions.")
+        params = {"title": "Insert a Tutoring Session"}
+        return render_template("newSession.html", **params)
+    else:
+        flash("Please log in to insert a session.")
+        return redirect(url_for('index'))
+        
 @app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
-    sessions = interactions.findAllSessions2()
-    params = {"title": "View Tutoring Sessions",
-                "sessions": sessions}
-    return render_template("viewSessions.html", **params)
-
+    if 'CAS_USERNAME' in session:
+        sessions = interactions.findAllSessions2()
+        params = {"title": "View Tutoring Sessions",
+                  "sessions": sessions}
+        print sessions
+        return render_template("viewSessions.html", **params)
+    else:
+        flash("Please log in to view sessions.")
+        return redirect(url_for('index'))
+        
 @app.route("/validateUser/", methods=["POST"])
 def validateUser():
     username = request.form.get("username")
