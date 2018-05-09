@@ -47,6 +47,20 @@ description: basic html template that other html pages inherit from
 				<li class="nav-item {{ 'active' if active_page == 'viewSessions' }}">
 					<a class="nav-link" href="{{ url_for('viewSessions') }}">View Sessions</a>
 				</li>
+				{% if username %}
+				<form action="/logout/">
+				  <li class="nav-item">
+				    <a class="nav-link" href="/logout/">Logout</a>
+				  </li>
+				</form>
+				{% else %}
+				<form action="/login/">
+				  <li class="nav-item">
+				    <a class="nav-link" href="/login/">Login</a>
+				  </li>
+				</form>
+				{% endif %}
+
 			</ul>
 			<form class="form-inline my-2 my-lg-0">
 				<div class="input-group">
