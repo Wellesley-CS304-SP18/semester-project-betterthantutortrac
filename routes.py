@@ -10,14 +10,54 @@ import dbconn2
 from app import app
 from datetime import datetime
 from flask import render_template, flash, request, redirect, url_for, session, jsonify
+from flask_cas import CAS
+
+CAS(app)
+app.config['CAS_SERVER'] = 'https://login.wellesley.edu:443'
+app.config['CAS_AFTER_LOGIN'] = 'logged_in'
+app.config['CAS_LOGIN_ROUTE'] = '/module.php/casserver/cas.php/login'
+app.config['CAS_LOGOUT_ROUTE'] = '/module.php/casserver/cas.php/logout'
+app.config['CAS_AFTER_LOGOUT'] = 'https://cs.wellesley.edu:1943/index'
+app.config['CAS_VALIDATE_ROUTE'] = '/module.php/casserver/serviceValidate.php'
+
+@app.route('/logged_in/')
+def logged_in():
+    flash('successfully logged in!')
+    return redirect(url_for('index'))
+
+@app.route('/logged_out/')
+def logged_out():
+    flash('successfully logged out!')
+    return redirect(url_for('index'))
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
 def index():
-    params = {"title": "Home"}
+    # start CAS debugging
+    print 'Session keys: ', session.keys()
+    for k in session.keys():
+        print k, ' => ', session[k]
+    if '_CAS_TOKEN' in session:
+        token = session['_CAS_TOKEN']
+    if 'CAS_ATTRIBUTES' in session:
+        attribs = session['CAS_ATTRIBUTES']
+        print 'CAS_attributes: '
+        for k in attribs:
+            print '\t', k, ' => ', attribs[k]
+    # end CAS debugging
+    if 'CAS_USERNAME' in session:
+        is_logged_in = True
+        username = session['CAS_USERNAME']
+        print('CAS_USERNAME is: ', username)
+    else:
+        is_logged_in = False
+        username = None
+        print('CAS_USERNAME is not in the session')
+    params = {"title": "Home", "username": username, "is_logged_in": is_logged_in}
     return render_template("index.html", **params)
 
 # Note: login isn't quite working yet. Will make it into P4.
+'''
 @app.route("/login/", methods=["GET", "POST"])
 def login():
     # edit the following to make it work
@@ -31,6 +71,7 @@ def login():
         session["userid"] = 1  # fill this in
         flash("Login successful")
     return render_template("login.html", **params)
+'''
 
 @app.route("/newSession/", methods=["GET", "POST"])
 def newSession():
