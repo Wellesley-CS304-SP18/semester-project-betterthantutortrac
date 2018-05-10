@@ -10,15 +10,6 @@ import dbconn2
 from app import app
 from datetime import datetime
 from flask import render_template, flash, request, redirect, url_for, session, jsonify
-from flask_cas import CAS
-
-CAS(app)
-app.config['CAS_SERVER'] = 'https://login.wellesley.edu:443'
-app.config['CAS_AFTER_LOGIN'] = 'logged_in'
-app.config['CAS_LOGIN_ROUTE'] = '/module.php/casserver/cas.php/login'
-app.config['CAS_LOGOUT_ROUTE'] = '/module.php/casserver/cas.php/logout'
-app.config['CAS_AFTER_LOGOUT'] = 'https://cs.wellesley.edu:1943/index'
-app.config['CAS_VALIDATE_ROUTE'] = '/module.php/casserver/serviceValidate.php'
 
 @app.route('/logged_in/')
 def logged_in():
@@ -33,6 +24,8 @@ def logged_out():
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
 def index():
+    params = {"title": "Home"}
+    
     # start CAS debugging
     print 'Session keys: ', session.keys()
     for k in session.keys():
@@ -45,6 +38,7 @@ def index():
         for k in attribs:
             print '\t', k, ' => ', attribs[k]
     # end CAS debugging
+    
     if 'CAS_USERNAME' in session:
         is_logged_in = True
         username = session['CAS_USERNAME']
@@ -53,28 +47,14 @@ def index():
         is_logged_in = False
         username = None
         print('CAS_USERNAME is not in the session')
-    params = {"title": "Home", "username": username, "is_logged_in": is_logged_in}
+    
+    params["username"] = username
+    params["is_logged_in"] = is_logged_in
     return render_template("index.html", **params)
-
-# Note: login isn't quite working yet. Will make it into P4.
-'''
-@app.route("/login/", methods=["GET", "POST"])
-def login():
-    # edit the following to make it work
-    params = {"title": "Login"}
-    if "userid" in session:
-        flash("Already logged in!")
-        return redirect(url_for("index"))
-    if request.method == "POST":
-        email = request.form.get("email")
-        pwd = request.form.get("password")
-        session["userid"] = 1  # fill this in
-        flash("Login successful")
-    return render_template("login.html", **params)
-'''
 
 @app.route("/newSession/", methods=["GET", "POST"])
 def newSession():
+    params = {"title": "Insert a Tutoring Session"}
     if 'CAS_USERNAME' in session:
         if request.method == "POST":
             username = request.form.get("username")
@@ -101,7 +81,8 @@ def newSession():
                 flash("Tutoring session entered successfully.")
             else:
                 flash("Failed to enter tutoring sessions.")
-        params = {"title": "Insert a Tutoring Session"}
+        
+        params["is_logged_in"] = True
         return render_template("newSession.html", **params)
     else:
         flash("Please log in to insert a session.")
@@ -109,16 +90,19 @@ def newSession():
         
 @app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
+    params = {"title": "View Tutoring Sessions"}
     if 'CAS_USERNAME' in session:
         sessions = interactions.findAllSessions2()
-        params = {"title": "View Tutoring Sessions",
-                  "sessions": sessions}
-        print sessions
+        params["sessions"] = sessions
+        params["is_logged_in"] = True
         return render_template("viewSessions.html", **params)
     else:
         flash("Please log in to view sessions.")
         return redirect(url_for('index'))
-        
+
+
+# javascript routes for async requests
+
 @app.route("/validateUser/", methods=["POST"])
 def validateUser():
     username = request.form.get("username")

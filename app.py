@@ -7,8 +7,17 @@ description: main module that will run app
 
 import os
 from flask import Flask
+from flask_cas import CAS
 
 app = Flask(__name__)
+
+CAS(app)
+app.config["CAS_SERVER"] = "https://login.wellesley.edu:443"
+app.config["CAS_AFTER_LOGIN"] = "logged_in"
+app.config["CAS_LOGIN_ROUTE"] = "/module.php/casserver/cas.php/login"
+app.config["CAS_LOGOUT_ROUTE"] = "/module.php/casserver/cas.php/logout"
+app.config["CAS_AFTER_LOGOUT"] = "https://cs.wellesley.edu:1943/index"
+app.config["CAS_VALIDATE_ROUTE"] = "/module.php/casserver/serviceValidate.php"
 
 # placed after defining app to prevent circular dependencies
 from routes import *
