@@ -11,7 +11,7 @@ import sys
 import MySQLdb
 import dbconn2
 
-database = 'plee3_db' # for testing; update with project db later
+database = 'kkenneal_db' # for testing; update with project db later
 
 ### database connection functions ###
 

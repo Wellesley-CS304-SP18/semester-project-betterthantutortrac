@@ -12,13 +12,12 @@ app = Flask(__name__)
 
 # placed after defining app to prevent circular dependencies
 from routes import *
-from program import getRandomKey
 
-app.secret_key = getRandomKey()
+app.secret_key = "secretKey123"
 
 if __name__ == "__main__":
-    print " * Key: " + app.secret_key  # print for debugging purposes
     app.debug = True
-    #port = os.getuid()
+    # port = os.getuid()
     port = 1943
     app.run("0.0.0.0", port)
+    print " * Key: " + app.secret_key  # print for debugging purposes
