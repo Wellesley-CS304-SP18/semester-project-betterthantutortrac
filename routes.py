@@ -40,16 +40,16 @@ def index():
     # end CAS debugging
     
     if 'CAS_USERNAME' in session:
-        is_logged_in = True
+        isLoggedIn = True
         username = session['CAS_USERNAME']
         print('CAS_USERNAME is: ', username)
     else:
-        is_logged_in = False
+        isLoggedIn = False
         username = None
         print('CAS_USERNAME is not in the session')
     
     params["username"] = username
-    params["is_logged_in"] = is_logged_in
+    params["isLoggedIn"] = isLoggedIn
     return render_template("index.html", **params)
 
 @app.route("/newSession/", methods=["GET", "POST"])
@@ -72,17 +72,17 @@ def newSession():
             print "the cid for", dept, coursenum, "is", courseId
 
             sessionData = { # add begin and end times later
-                "userId": userId,
-                "courseId": courseId,
+                "pid": userId,
+                "cid": courseId,
                 "isTutor": 'n', # update this later
-                "sessiontype": sType}
+                "sessionType": sType}
             insertData = interactions.insertSession(sessionData)
             if insertData:
                 flash("Tutoring session entered successfully.")
             else:
                 flash("Failed to enter tutoring sessions.")
         
-        params["is_logged_in"] = True
+        params["isLoggedIn"] = True
         return render_template("newSession.html", **params)
     else:
         flash("Please log in to insert a session.")
@@ -94,7 +94,7 @@ def viewSessions():
     if 'CAS_USERNAME' in session:
         sessions = interactions.findAllSessions2()
         params["sessions"] = sessions
-        params["is_logged_in"] = True
+        params["isLoggedIn"] = True
         return render_template("viewSessions.html", **params)
     else:
         flash("Please log in to view sessions.")
