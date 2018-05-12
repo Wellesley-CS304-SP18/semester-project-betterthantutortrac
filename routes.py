@@ -89,7 +89,7 @@ def viewSessions():
     params = {"title": "View Tutoring Sessions"}
     if 'CAS_USERNAME' in session:
         conn = interactions.getConn()
-        sessions = interactions.findAllSessions2(conn)
+        sessions = interactions.findAllSessions(conn)
         params["sessions"] = sessions
         params["isLoggedIn"] = True
         return render_template("viewSessions.html", **params)

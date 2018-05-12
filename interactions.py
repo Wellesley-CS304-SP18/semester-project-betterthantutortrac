@@ -27,7 +27,7 @@ def getConn(dsn=None):
 
 ### database interaction FIND functions ###
 
-def getSQLQuery(conn, query, params, fetchall=False):
+def getSQLQuery(conn, query, params=[], fetchall=True):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute(query, params)
     if fetchall:
@@ -37,48 +37,60 @@ def getSQLQuery(conn, query, params, fetchall=False):
 def findUsersByName(conn, name):
     query = "SELECT * FROM users WHERE name LIKE %s"
     params = ["%" + name + "%"]
-    return getSQLQuery(conn, query, params, fetchall=True)
+    return getSQLQuery(conn, query, params)
 
 def findUsersByEmail(conn, email):
     # emails are unique, so we can require a unique match
     # e.g. al@wellesley.edu shouldn't return kkenneal@wellesley.edu
     query = "SELECT * FROM users WHERE email=%s"
     params = [email]
-    return getSQLQuery(conn, query, params, fetchall=True)
+    return getSQLQuery(conn, query, params)
 
 def findUsersByUsername(conn, username):
-    email = username + "@wellesley.edu" # just a wrapper around the last fn
+    email = username + "@wellesley.edu" # a wrapper around the last fn
     return findUsersByEmail(conn, email)
 
 def findCoursesByName(conn, dept, courseNum):
     query = "SELECT * FROM courses WHERE dept LIKE %s AND courseNum LIKE %s"
     params = ["%" + dept + "%", "%" + courseNum + "%"]
-    return getSQLQuery(conn, query, params, fetchall=True)
+    return getSQLQuery(conn, query, params)
 
 def findCoursesByStudent(conn, pid):
     query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
         WHERE pid=%s"""
     params = [pid]
-    return getSQLQuery(conn, query, params, fetchall=True)
+    return getSQLQuery(conn, query, params)
 
-def findAllSessions(conn):
-    return getSQLQuery(conn, "SELECT * FROM sessions", [], fetchall=True)
+def findAllSessions(conn): 
+    # want student name, course name, and session type. fix up later.
+    query = """
+        SELECT name, dept, courseNum, section, sessionType, 
+               isTutor, beginTime, endTime
+        FROM sessions 
+        INNER JOIN courses USING (cid) 
+        INNER JOIN users USING (pid)"""
+    return getSQLQuery(conn, query)
 
-def findAllSessions2(conn): # want student name, course name, and session type. fix up later.
-    query = """SELECT name, dept, courseNum, sessionType FROM sessions
-        INNER JOIN courses USING (cid) INNER JOIN users USING (pid)"""
-    params = []
-    return getSQLQuery(conn, query, params, fetchall=True)
+def findMatchingSessions(conn, searchTerm):
+    query = """
+        SELECT name, dept, courseNum, section, sessionType,
+               isTutor, beginTime, endTime
+        FROM sessions
+        INNER JOIN courses USING (cid)
+        INNER JOIN users USING (pid)
+        WHERE name LIKE %s OR courseNum LIKE %s OR dept LIKE %s"""
+    params = ["%" + searchTerm + "%" for _ in range(len(3))]
+    return getSQLQuery(conn, query, params)
 
 def findSessionsByStudent(conn, pid):
     query = "SELECT * FROM sessions WHERE pid=%s"
     params = [pid]
-    return getSQLQuery(conn, query, params, fetchall=True)
+    return getSQLQuery(conn, query, params)
 
 def findSessionsByCourse(conn, cid):
     query = "SELECT * FROM sessions WHERE cid=%s"
     params = [cid]
-    return getSQLQuery(conn, query, params, fetchall=True)
+    return getSQLQuery(conn, query, params)
 
 ### database interaction INSERT functions ###
 

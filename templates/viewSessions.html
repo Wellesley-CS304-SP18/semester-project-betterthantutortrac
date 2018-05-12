@@ -1,52 +1,48 @@
 {% extends "base.html" %}
 {% set active_page = "viewSessions" %}
 
-{% block content %}
-
-<div>
-	<table id="sessions-table" class="table table-striped table-inverse table-bordered table-hover" cellspacing="0" width="100%">
-		<thead>
-		<tr>
-			<th>Tutor</th>
-			<th>Student</th>
-			<th>Course</th>
-			<th>Session Type</th>
-			<th>Time in</th>
-			<th>Time out</th>
-			<th>Update</th>
-			<th>Delete</th>
-		</tr>
-		</thead>
-		<tbody>
-		{% for s in sessions %}
-		<tr>
-			<td>...</td>
-			<td>{{s.name}}</td>
-			<td>{{s.dept}} {{s.coursenum}}</td>
-			<td>{{s.sessiontype}}</td>
-			<td>...</td>
-			<td>...</td>
-			<td><button type="button" class="btn btn-primary" value="{{s.name}}">Update</button></td>
-			<td><button type="button" class="btn btn-danger" value="{{s.name}}">Delete</button></td>
-		</tr>
-		{%endfor%}
-		</tbody>
-	</table>
-</div>
+{% block css %}
+<!-- datatables css  -->
+<link href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap4.min.css" rel="stylesheet">
 {% endblock %}
 
+{% block content %}
+<table id="sessions-table" class="table table-striped table-inverse table-bordered table-hover" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th>Tutor</th>
+        <th>Student</th>
+        <th>Course</th>
+        <th>Session Type</th>
+        <th>Time in</th>
+        <th>Time out</th>
+        <th>Update</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for s in sessions %}
+    <tr>
+        <td>{{ 'x' if s.isTutor == 'y' }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.dept }} {{ s.courseNum }}-{{ s.section }}</td>
+        <td>{{ s.sessionType }}</td>
+        <td>{{ s.beginTime }}</td>
+        <td>{{ s.endTime }}</td>
+        <td>
+          <button type="button" class="btn btn-primary" value="{{ s.name }}">Update</button>
+        </td>
+        <td>
+          <button type="button" class="btn btn-danger" value="{{ s.name }}">Delete</button>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
 
 {% block js %}
-<script>
-
-$(document).ready(function(){
-$('#sessions-table').DataTable();
-
-$("button").click(function() {
-alert($(this).val());
-console.log($(this).val());
-});
-});
-
-</script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+<script src="{{ url_for('static', filename='js/viewSessions.js') }}"></script>
 {% endblock %}
