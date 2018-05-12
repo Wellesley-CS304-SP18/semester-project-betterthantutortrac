@@ -39,7 +39,7 @@ $(document).ready( function() {
         var userCourses = data.courses;
         for(i=0; i < userCourses.length; i++) {
           course = userCourses[i];
-          addOption("#course", course.id, course.name);
+          addOption("#course", course.cid, course.name);
         }
         $("#course").attr("readonly", false);
       });

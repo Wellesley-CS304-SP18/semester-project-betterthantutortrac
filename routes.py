@@ -60,18 +60,11 @@ def newSession():
             conn = interactions.getConn()
 
             username = request.form.get("username")
-            course = request.form.get("course")
+            courseId = request.form.get("course")
             sType = request.form.get("type")
-
-            print "cid:", course
 
             userData = interactions.findUsersByUsername(conn, username)[0]
             userId = userData.get("pid")
-
-            dept = course.split()[0]
-            coursenum = course.split()[1][0:3] # clean this up later
-            courseData = interactions.findCoursesByName(conn, dept, coursenum)[0]
-            courseId = courseData.get("cid")
             
             # add begin and end times later
             sessionData = { 
@@ -79,7 +72,7 @@ def newSession():
                 "cid": courseId,
                 "isTutor": 'n',  # tutors are stored differently
                 "sessionType": sType}
-            insertData = interactions.insertSession(sessionData)
+            insertData = interactions.insertSession(conn, sessionData)
             if insertData:
                 flash("Tutoring session entered successfully.")
             else:
@@ -104,8 +97,7 @@ def viewSessions():
         flash("Please log in to view sessions.")
         return redirect(url_for('index'))
 
-
-# javascript routes for async requests
+## javascript routes for async requests ##
 
 @app.route("/validateUser/", methods=["POST"])
 def validateUser():
