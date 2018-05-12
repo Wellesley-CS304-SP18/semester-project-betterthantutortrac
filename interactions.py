@@ -20,151 +20,116 @@ def getDsn(db):
     dsn['db'] = db
     return dsn
 
-def getConn(dsn):
+def getConn(dsn=None):
+    if dsn == None:
+        dsn = getDsn(database)
     return dbconn2.connect(dsn)
 
 ### database interaction FIND functions ###
 
-def findUsersByName(name):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from users where name like %s", ["%" + name + "%"])
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def getSQLQuery(conn, query, params, fetchall=False):
+    curs = conn.cursor(MySQLdb.cursors.DictCursor)
+    curs.execute(query, params)
+    if fetchall:
+        return curs.fetchall()
+    return curs.fetchone()
 
-def findUsersByEmail(email):
-    try:
-        # emails are unique, so we can require a unique match
-        # e.g. al@wellesley.edu shouldn't return kkenneal@wellesley.edu
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from users where email=%s", [email])
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findUsersByName(conn, name):
+    query = "SELECT * FROM users WHERE name LIKE %s"
+    params = ["%" + name + "%"]
+    return getSQLQuery(conn, query, params, fetchall=True)
 
-def findUsersByUsername(username):
-    email = username + "@wellesley.edu" # just a wrapper around the next fn
-    return findUsersByEmail(email)
+def findUsersByEmail(conn, email):
+    # emails are unique, so we can require a unique match
+    # e.g. al@wellesley.edu shouldn't return kkenneal@wellesley.edu
+    query = "SELECT * FROM users WHERE email=%s"
+    params = [email]
+    return getSQLQuery(conn, query, params, fetchall=True)
 
-def findCoursesByName(dept, courseNum):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from courses where dept like %s and courseNum like %s", ["%" + dept + "%", "%" + courseNum + "%"])
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findUsersByUsername(conn, username):
+    email = username + "@wellesley.edu" # just a wrapper around the last fn
+    return findUsersByEmail(conn, email)
 
-def findCoursesByStudent(pid):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute(
-            "select * from courses inner join coursesTaken on courses.cid=coursesTaken.cid where pid=%s", [pid])
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findCoursesByName(conn, dept, courseNum):
+    query = "SELECT * FROM courses WHERE dept LIKE %s AND courseNum LIKE %s"
+    params = ["%" + dept + "%", "%" + courseNum + "%"]
+    return getSQLQuery(conn, query, params, fetchall=True)
 
-def findAllSessions():
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from sessions")
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findCoursesByStudent(conn, pid):
+    query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
+        WHERE pid=%s"""
+    params = [pid]
+    return getSQLQuery(conn, query, params, fetchall=True)
 
-def findAllSessions2(): # want student name, course name, and session type. fix up later.
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select name, dept, courseNum, sessionType from sessions inner join courses on (cid=cid) inner join users on (userId=pid)")
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findAllSessions(conn):
+    return getSQLQuery(conn, "SELECT * FROM sessions", [], fetchall=True)
 
-def findSessionsByStudent(pid):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from sessions where userId=%s", [pid])
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findAllSessions2(conn): # want student name, course name, and session type. fix up later.
+    query = """SELECT name, dept, courseNum, sessionType FROM sessions
+        INNER JOIN courses USING (cid) INNER JOIN users USING (pid)"""
+    params = []
+    return getSQLQuery(conn, query, params, fetchall=True)
 
-def findSessionsByCourse(cid):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("select * from sessions where cid=%s", [cid])
-        rows = curs.fetchall()
-        return rows
-    except Exception:
-        return []
+def findSessionsByStudent(conn, pid):
+    query = "SELECT * FROM sessions WHERE pid=%s"
+    params = [pid]
+    return getSQLQuery(conn, query, params, fetchall=True)
+
+def findSessionsByCourse(conn, cid):
+    query = "SELECT * FROM sessions WHERE cid=%s"
+    params = [cid]
+    return getSQLQuery(conn, query, params, fetchall=True)
 
 ### database interaction INSERT functions ###
 
-def insertUser(data):
+def insertData(conn, query, params):
     try:
-        conn = getConn(getDsn(database))
         curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute(
-            "insert into users (pid, name, email, password, permissions, year, bnumber, userType) values (%s, %s, %s, %s, %s, %s, %s, %s)", 
-            [data['pid'], data['name'], data['email'], data['password'], data['permissions'], data['year'], data['bnumber'], data['userType']])
+        curs.execute(query, params)
         return True
-    except:
+    except Exception as e:
+        print "Exception:", e
         return False
 
-def insertCourse(data):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute(
-            "insert into courses (cid, dept, courseNum, section, year, semester) values (%s, %s, %s, %s, %s, %s)", 
-            [data['cid'], data['dept'], data['courseNum'], data['section'], data['year'], data['semester']])
-        return True
-    except Exception:
-        return False
+def insertUser(conn, data):
+    paramOrder = ["pid", "name", "email", "password", "permissions", "year",
+        "bnumber", "userType"]
+    query = "INSERT INTO users ({pNames}) VALUES ({pVals})".format(
+        pNames=", ".join(paramOrder),
+        pVals=", ".join(["%s" for _ in range(len(paramOrder))])
+    )
+    params = [data[p] for p in paramOrder]
+    return insertData(conn, query, params)
 
-def insertStudentCourse(pid, cid):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into coursesTaken (pid, cid) values (%s, %s)", [pid, cid])
-        return True
-    except Exception:
-        return False
+def insertCourse(conn, data):
+    paramOrder = ["cid", "dept", "courseNum", "section", "year", "semester"]
+    query = "INSERT INTO courses ({pNames}) VALUES ({pVals})".format(
+        pNames=", ".join(paramOrder),
+        pVals=", ".join(["%s" for _ in range(len(paramOrder))])
+    )
+    params = [data[p] for p in paramOrder]
+    return insertData(conn, query, params)
 
-def insertProfCourse(pid, cid):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute("insert into coursesTaught (pid, cid) values (%s, %s)", [pid, cid])
-        return True
-    except Exception:
-        return False
+def insertStudentCourse(conn, data):
+    query = "INSERT INTO coursesTaken (pid, cid) VALUES (%s, %s)"
+    params = [data["pid"], data["cid"]]
+    return insertData(conn, query, params)
 
-def insertSession(data):
-    try:
-        conn = getConn(getDsn(database))
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute(
-            "insert into sessions (userId, cid, isTutor, sessionType) values (%s, %s, %s, %s)",
-            [data['userId'], data['cid'], data['isTutor'], data['sessionType']])
-#        curs.execute(
-#            "insert into sessions (userId, cid, isTutor, beginTime, endTime, sessionType) values (%s, %s, %s, %s, %s, %s)", 
-#            [data['userId'], data['cid'], data['isTutor'], data['beginTime'], data['endTime'], data['sessionType']])
-        return True
-    except Exception:
-        print "insert session exception", Exception
-        return False
+def insertProfCourse(conn, data):
+    query = "INSERT INTO coursesTaught (pid, cid) VALUES (%s, %s)"
+    params = [data["pid"], data["cid"]]
+    return insertData(conn, query, params)
+
+def insertTutorCourse(conn, data):
+    query = "INSERT INTO tutors (pid, cid) VALUES (%s, %s)"
+    params = [data["pid"], data["cid"]]
+    return insertData(conn, query, params)
+
+def insertSession(conn, data):
+    paramOrder = ["pid", "cid", "isTutor", "sessionType"]
+    query = "INSERT INTO sessions ({pNames}) VALUES ({pVals})".format(
+        pNames=", ".join(paramOrder),
+        pVals=", ".join(["%s" for _ in range(len(paramOrder))])
+    )
+    params = [data[p] for p in paramOrder]
+    return insertData(conn, query, params)

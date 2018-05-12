@@ -1,7 +1,9 @@
 -- filename: tables.sql --
--- author: Kate Kenneally --
--- last modified: 05/01/2018 --
+-- author: Kate Kenneally, Angelina Li --
+-- last modified: 05/12/2018 --
 -- description: SQL table DDL --
+
+use kkenneal_db;
 
 drop table if exists sessions;
 drop table if exists coursesTaught;
@@ -62,7 +64,13 @@ create table sessions(
        isTutor enum('y','n'),
        beginTime datetime,
        endTime datetime,
-       sessionType enum(''),
+       sessionType enum(
+            'ASC (Academic Success Coordinator)', 
+            'Help Room',
+            'PLTC Assigned Tutoring',
+            'Public Speaking Tutoring',
+            'SI (Supplemental Instruction)'
+        ),
        foreign key (pid) references users(pid) on delete cascade,
        foreign key (cid) references courses(cid) on delete cascade
 )

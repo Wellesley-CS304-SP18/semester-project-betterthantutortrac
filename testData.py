@@ -1,4 +1,4 @@
-import interactions
+from interactions import *
 
 userData = [
     {'pid': 1, 'name': 'Kate Kenneally', 'email': 'kkenneal@wellesley.edu', 
@@ -85,45 +85,34 @@ tutorCourseData = [
 ]
 
 sessionData = [
-    {'pid': 1, 'cid': 1, 'isTutor': 'n', 'beginTime': None, 'endTime': None, 'sessionType': 'help room'},
-    {'pid': 1, 'cid': 8, 'isTutor': 'y', 'beginTime': None, 'endTime': None, 'sessionType': 'help room'},
-    {'pid': 2, 'cid': 7, 'isTutor': 'y', 'beginTime': None, 'endTime': None, 'sessionType': 'individual tutoring'},
-    {'pid': 1, 'cid': 2, 'isTutor': 'n', 'beginTime': None, 'endTime': None, 'sessionType': 'individual tutoring'}
+    {'pid': 1, 'cid': 1, 'isTutor': 'n', 'beginTime': None, 'endTime': None, 'sessionType': 'Help Room'},
+    {'pid': 1, 'cid': 8, 'isTutor': 'y', 'beginTime': None, 'endTime': None, 'sessionType': 'Help Room'},
+    {'pid': 2, 'cid': 7, 'isTutor': 'y', 'beginTime': None, 'endTime': None, 'sessionType': 'PLTC Assigned Tutoring'},
+    {'pid': 1, 'cid': 2, 'isTutor': 'n', 'beginTime': None, 'endTime': None, 'sessionType': 'PLTC Assigned Tutoring'}
 ]
 
-def checkResults(results, insertLabel):
+def insertData(conn, dataList, insertFunc, insertLabel):
+    results = []
+    for d in dataList:
+        r = insertFunc(conn, d)
+        results.append(r)
+
     if not all(results):
-        print("Error when:", insertLabel)
+        print "Error while:", insertLabel
     else:
-        print("Finished:", insertLabel)
+        print "Finished:", insertLabel
 
-def insertData():
-    results = []
-    for d in userData:
-        r = interactions.insertUser(d)
-        results.append(r)
-    checkResults(results, "inserting users")
-    
-    results = []
-    for d in courseData:
-        r = interactions.insertCourse(d)
-        results.append(r)
-    checkResults(results, "inserting courses")
+def insertAllData():
+    c = getConn()
+    insertData(c, userData, insertUser, "inserting users")
+    insertData(c, courseData, insertCourse, "inserting courses")
+    insertData(c, tutorCourseData, insertTutorCourse,
+        "inserting tutor courses")
+    insertData(c, studentCourseData, insertStudentCourse, 
+        "inserting student courses")
+    insertData(c, profCourseData, insertProfCourse, 
+        "inserting prof courses")
+    insertData(c, sessionData, insertSession, "inserting sessions")
 
-    results = []
-    for d in studentCourseData:
-        r = interactions.insertStudentCourse(**d)
-        results.append(r)
-    checkResults(results, "inserting student courses")
-
-    results = []
-    for d in profCourseData:
-        r = interactions.insertProfCourse(**d)
-        results.append(r)
-    checkResults(results, "inserting prof courses")
-
-    results = []
-    for d in sessionData:
-        r = interactions.insertSession(d)
-        results.append(r)
-    checkResults(results, "inserting sessions")
+if __name__ == "__main__":
+    insertAllData()
