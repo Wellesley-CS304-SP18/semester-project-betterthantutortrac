@@ -57,24 +57,27 @@ def newSession():
     params = {"title": "Insert a Tutoring Session"}
     if 'CAS_USERNAME' in session:
         if request.method == "POST":
+            conn = interactions.getConn()
+
             username = request.form.get("username")
             course = request.form.get("course")
             sType = request.form.get("type")
 
-            userData = interactions.findUsersByUsername(username)[0]
+            print "cid:", course
+
+            userData = interactions.findUsersByUsername(conn, username)[0]
             userId = userData.get("pid")
 
             dept = course.split()[0]
             coursenum = course.split()[1][0:3] # clean this up later
-            courseData = interactions.findCoursesByName(dept, coursenum)[0]
+            courseData = interactions.findCoursesByName(conn, dept, coursenum)[0]
             courseId = courseData.get("cid")
             
-            print "the cid for", dept, coursenum, "is", courseId
-
-            sessionData = { # add begin and end times later
+            # add begin and end times later
+            sessionData = { 
                 "pid": userId,
                 "cid": courseId,
-                "isTutor": 'n', # update this later
+                "isTutor": 'n',  # tutors are stored differently
                 "sessionType": sType}
             insertData = interactions.insertSession(sessionData)
             if insertData:
@@ -92,7 +95,8 @@ def newSession():
 def viewSessions():
     params = {"title": "View Tutoring Sessions"}
     if 'CAS_USERNAME' in session:
-        sessions = interactions.findAllSessions2()
+        conn = interactions.getConn()
+        sessions = interactions.findAllSessions2(conn)
         params["sessions"] = sessions
         params["isLoggedIn"] = True
         return render_template("viewSessions.html", **params)
@@ -105,22 +109,24 @@ def viewSessions():
 
 @app.route("/validateUser/", methods=["POST"])
 def validateUser():
+    conn = interactions.getConn()
     username = request.form.get("username")
-    usersData = interactions.findUsersByUsername(username)
+    usersData = interactions.findUsersByUsername(conn, username)
     return jsonify({"validate": len(usersData) == 1})
 
 @app.route("/getUserClasses/", methods=["POST"])
 def getUserClasses():
+    conn = interactions.getConn()
     username = request.form.get("username")
-    userData = interactions.findUsersByUsername(username)[0]
-    userCourses = interactions.findCoursesByStudent(userData["pid"])
+    userData = interactions.findUsersByUsername(conn, username)[0]
+    userCourses = interactions.findCoursesByStudent(conn, userData["pid"])
     formattedCourses = []
     for course in userCourses:
         courseData = {
             "cid": course.get("cid"),
             "name": "{dept} {num}-{section}".format(
                 dept=course.get("dept"),
-                num=course.get("coursenum"),
+                num=course.get("courseNum"),
                 section=course.get("section"))
         }
         formattedCourses.append(courseData)
