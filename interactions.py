@@ -61,6 +61,12 @@ def findCoursesByStudent(conn, pid):
     params = [pid]
     return getSQLQuery(conn, query, params)
 
+def findCoursesByTutor(conn, pid):
+    query = """SELECT * FROM courses INNER JOIN tutors USING (cid)
+        WHERE pid=%s"""
+    params = [pid]
+    return getSQLQuery(conn, query, params)
+
 def findAllSessions(conn): 
     # want student name, course name, and session type. fix up later.
     query = """

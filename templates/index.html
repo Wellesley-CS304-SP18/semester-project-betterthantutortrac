@@ -1,2 +1,38 @@
 {% extends "base.html" %}
 {% set active_page = "index" %}
+
+{% block content %}
+<h1 class="display-4">Hi{{ ' ' + user["firstName"] if isLoggedIn }}!</h1>
+
+<p class="lead">🎉  Welcome to Better Than TutorTrac 🎉</p>
+
+{% if isLoggedIn and user["isTutor"] %}
+<br>
+<div class="card mx-auto card-form">
+  <div class="card-body">
+    <form method="POST" action="" id="startSession">
+      <h4>Start a Tutoring Session</h4>
+
+      <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border border-right-0">
+            <i class="fas fa-graduation-cap"></i>
+          </span>
+        </div>
+        <select class="form-control custom-select border border-left-0" id="course" 
+          name="course" readonly>
+          <option selected disabled>Select a course</option>
+          {% for c in tutorCourses %}
+          <option value="{{ c['cid'] }}">{{ c['dept'] }} {{ c['courseNum'] }}-{{ c['section'] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+    </form>
+  </div>
+</div>
+<form action="">
+</form>
+{% endif %}
+
+{% endblock %}
