@@ -29,8 +29,8 @@ def logged_out():
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
 def index():
-    params = {"title": "Home"}
-    
+    params = {}
+
     # start CAS debugging
     print 'Session keys: ', session.keys()
     for k in session.keys():
@@ -45,16 +45,25 @@ def index():
     # end CAS debugging
     
     # check if user is logged in via CAS
+    isLoggedIn = False
     if 'CAS_USERNAME' in session:
         isLoggedIn = True
+        
+        conn = interactions.getConn()
         username = session['CAS_USERNAME']
+        user = interactions.findUsersByUsername(conn, username)[0]
+        tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
+        print tutorCourses
+
+        user["isTutor"] = len(tutorCourses) > 0
+        user["tutorCourses"] = tutorCourses
+        user["username"] = username
+        user["firstName"] = user["name"].split()[0]
+        params["user"] = user
         print('CAS_USERNAME is: ', username)
     else:
-        isLoggedIn = False
-        username = None
         print('CAS_USERNAME is not in the session')
     
-    params["username"] = username
     params["isLoggedIn"] = isLoggedIn
     return render_template("index.html", **params)
 
