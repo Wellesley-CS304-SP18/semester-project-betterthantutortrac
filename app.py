@@ -28,6 +28,6 @@ app.secret_key = "secretKey123"
 if __name__ == "__main__":
     app.debug = True
     # port = os.getuid()
-    port = 1948 # needed for CAS
+    port = 1944 # needed for CAS (1942 is scott's, 1943 and up is fine, stay in range of 1940s)
     app.run("0.0.0.0", port)
     print " * Key: " + app.secret_key  # print for debugging purposes

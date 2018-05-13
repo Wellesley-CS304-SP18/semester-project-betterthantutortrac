@@ -59,9 +59,11 @@ create table coursesTaught(
 ENGINE = InnoDB;
 
 create table sessions(
-       pid integer not null,
-       cid integer not null,
-       isTutor enum('y','n'),
+       sid integer auto_increment primary key, -- session id
+       pid integer not null, -- tutee/student id
+       tid integer, -- tutor id
+       cid integer not null, -- course id
+       isTutor tinyint, 
        beginTime datetime,
        endTime datetime,
        sessionType enum(

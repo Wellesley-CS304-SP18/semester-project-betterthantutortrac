@@ -85,10 +85,10 @@ tutorCourseData = [
 ]
 
 sessionData = [
-    {'pid': 1, 'cid': 1, 'isTutor': 'n', 'beginTime': None, 'endTime': None, 'sessionType': 'Help Room'},
-    {'pid': 1, 'cid': 8, 'isTutor': 'y', 'beginTime': None, 'endTime': None, 'sessionType': 'Help Room'},
-    {'pid': 2, 'cid': 7, 'isTutor': 'y', 'beginTime': None, 'endTime': None, 'sessionType': 'PLTC Assigned Tutoring'},
-    {'pid': 1, 'cid': 2, 'isTutor': 'n', 'beginTime': None, 'endTime': None, 'sessionType': 'PLTC Assigned Tutoring'}
+    {'pid': 1, 'tid': 2, 'cid': 1, 'isTutor': 0, 'beginTime': None, 'endTime': None, 'sessionType': 'Help Room'},
+    {'pid': 1, 'cid': 8, 'isTutor': 1, 'beginTime': None, 'endTime': None, 'sessionType': 'Help Room'},
+    {'pid': 2, 'cid': 7, 'isTutor': 1, 'beginTime': None, 'endTime': None, 'sessionType': 'PLTC Assigned Tutoring'},
+    {'pid': 1, 'tid': 3, 'cid': 2, 'isTutor': 0, 'beginTime': None, 'endTime': None, 'sessionType': 'PLTC Assigned Tutoring'}
 ]
 
 def insertData(conn, dataList, insertFunc, insertLabel):
