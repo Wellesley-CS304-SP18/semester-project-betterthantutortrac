@@ -1,5 +1,4 @@
 #!/user/local/bin/python2.7
-
 """
 filename: interactions.py
 authors: Kate Kenneally, Angelina Li, Priscilla Lee
@@ -96,23 +95,36 @@ def findMatchingSessions(conn, searchTerm):
 
 def findSessionsByStudent(conn, pid):
     query = """SELECT name, dept, courseNum, section, sessionType,
-isTutor, beginTime, endTime
-FROM sessions
-INNER JOIN courses USING (cid)
-INNER JOIN users USING (pid)
-WHERE pid=%s"""
+        isTutor, beginTime, endTime
+        FROM sessions
+        INNER JOIN courses USING (cid)
+        INNER JOIN users USING (pid)
+        WHERE pid=%s"""
     params = [pid]
     return getSQLQuery(conn, query, params)
 
 def findSessionsByCourse(conn, cid):
     query = """SELECT name, dept, courseNum, section, sessionType,
-isTutor, beginTime, endTime
-FROM sessions
-INNER JOIN courses USING (cid)
-INNER JOIN users USING (pid)
-WHERE cid=%s"""
+        isTutor, beginTime, endTime
+        FROM sessions
+        INNER JOIN courses USING (cid)
+        INNER JOIN users USING (pid)
+        WHERE cid=%s"""
     params = [cid]
     return getSQLQuery(conn, query, params)
+
+def findAllSessionTypes():
+    """
+    This function returns a list of all possible valid session types.
+    """
+    sessionTypes = [                                                            
+        "ASC (Academic Success Coordinator)",                                   
+        "Help Room",                                                            
+        "PLTC Assigned Tutoring",                                               
+        "Public Speaking Tutoring",                                             
+        "SI (Supplemental Instruction)"                                         
+    ]
+    return sessionTypes
 
 ### database interaction INSERT functions ###
 

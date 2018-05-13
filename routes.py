@@ -52,13 +52,26 @@ def index():
         conn = interactions.getConn()
         username = session['CAS_USERNAME']
         user = interactions.findUsersByUsername(conn, username)[0]
-        tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
-
-
-        user["isTutor"] = len(tutorCourses) > 0
-        user["tutorCourses"] = tutorCourses
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
+
+        if request.method == "POST":
+            userId = user.get("pid")
+            courseId = request.form.get("course")
+            sType = request.form.get("type")
+
+            sessionData = { 
+                "pid": userId,
+                "cid": courseId,
+                "isTutor": 'n',  # tutors are stored differently
+                "sessionType": sType}
+
+        tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
+        user["isTutor"] = len(tutorCourses) > 0
+        if user["isTutor"]:
+            user["tutorCourses"] = tutorCourses
+            user["sessionTypes"] = interactions.findAllSessionTypes()
+        
         params["user"] = user
         print('CAS_USERNAME is: ', username)
     else:
@@ -179,12 +192,6 @@ def getUserClasses():
 @app.route("/getSessionTypes/", methods=["POST"])
 def getSessionTypes():
     # types of tutoring sessions
-    sessionTypes = [
-        "ASC (Academic Success Coordinator)", 
-        "Help Room", 
-        "PLTC Assigned Tutoring",
-        "Public Speaking Tutoring",
-        "SI (Supplemental Instruction)"
-    ]
+    sessionTypes = interactions.findAllSessionTypes()
     return jsonify({"types": sessionTypes})
 

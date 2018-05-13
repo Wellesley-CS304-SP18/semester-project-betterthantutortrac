@@ -28,13 +28,13 @@ app.secret_key = "secretKey123"
 if __name__ == "__main__":
     app.debug = True
     systemPort = os.getuid()
+    # needed for CAS (1942 is scott's, 1943 and up is fine, stay in range of 1940s)
     availablePorts = {
         6251: 1943, 
         6352: 1944, 
         7277: 1948
     }
     # use unique port for each person
-    # needed for CAS (1942 is scott's, 1943 and up is fine, stay in range of 1940s)
     port = availablePorts[systemPort] 
     app.run("0.0.0.0", port)
     print " * Key: " + app.secret_key  # print for debugging purposes

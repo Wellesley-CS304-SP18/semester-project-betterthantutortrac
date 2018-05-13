@@ -11,7 +11,9 @@
 <div class="card mx-auto card-form">
   <div class="card-body">
     <form method="POST" action="" id="startSession">
-      <h4>Start a Tutoring Session</h4>
+      <h3>Start a Tutoring Session</h3>
+
+      <br>
 
       <div class="input-group input-group-lg">
         <div class="input-group-prepend">
@@ -28,6 +30,8 @@
         </select>
       </div>
 
+      <br>
+
       <div class="input-group input-group-lg">
         <div class="input-group-prepend">
           <span class="input-group-text bg-white border border-right-0">
@@ -38,8 +42,24 @@
         <select class="form-control custom-select border border-left-0" id="type" 
           name="type">
           <option selected disabled>Select the type of tutoring session</option>
+          {% for t in user['sessionTypes'] %}
+          <option value="{{t}}">{{t}}</option>
+          {% endfor %}
         </select>
       </div>
+
+      <br>
+
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="autoPopulate">
+        <label class="form-check-label" for="autoPopulate">
+          Are all students attending a part of <span id="courseName">this class</span>?
+        </label>
+      </div>
+
+      <br>
+
+      <button type="submit" class="btn btn-primary btn-lg">Start</button>
 
     </form>
   </div>
@@ -48,4 +68,8 @@
 </form>
 {% endif %}
 
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/startTutorSession.js') }}"></script>
 {% endblock %}
