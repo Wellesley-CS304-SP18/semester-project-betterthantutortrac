@@ -2,7 +2,7 @@
 
 """
 filename: interactions.py
-authors: Kate Kenneally, Angelina Li
+authors: Kate Kenneally, Angelina Li, Priscilla Lee
 last modified: 05/13/2018
 description: python to SQL interactions
 """
@@ -139,6 +139,8 @@ def insertTutorCourse(conn, data):
 
 def insertSession(conn, data):
     paramOrder = ["pid", "cid", "isTutor", "sessionType"]
+    if "tid" in data:
+        paramOrder.append("tid")
     query = "INSERT INTO sessions ({pNames}) VALUES ({pVals})".format(
         pNames=", ".join(paramOrder),
         pVals=", ".join(["%s" for _ in range(len(paramOrder))])
