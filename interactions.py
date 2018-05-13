@@ -63,13 +63,13 @@ def findCoursesByStudent(conn, pid):
 
 def findCoursesByProf(conn, pid):
     query = """SELECT * FROM courses INNER JOIN coursesTaught USING (cid) 
-WHERE pid=%s"""
+        WHERE pid=%s"""
     params = [pid]
     return getSQLQuery(conn, query, params)
 
 def findCoursesByTutor(conn, pid):
-    query = """SELECT * FROM courses INNER JOIN tutors USING (cid) 
-WHERE pid=%s"""
+    query = """SELECT * FROM courses INNER JOIN tutors USING (cid)
+        WHERE pid=%s"""
     params = [pid]
     return getSQLQuery(conn, query, params)
 
