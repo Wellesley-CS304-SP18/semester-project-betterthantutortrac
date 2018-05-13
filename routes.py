@@ -53,7 +53,7 @@ def index():
         username = session['CAS_USERNAME']
         user = interactions.findUsersByUsername(conn, username)[0]
         tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
-        print tutorCourses
+
 
         user["isTutor"] = len(tutorCourses) > 0
         user["tutorCourses"] = tutorCourses

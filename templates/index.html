@@ -20,11 +20,24 @@
           </span>
         </div>
         <select class="form-control custom-select border border-left-0" id="course" 
-          name="course" readonly>
+          name="course">
           <option selected disabled>Select a course</option>
-          {% for c in tutorCourses %}
+          {% for c in user['tutorCourses'] %}
           <option value="{{ c['cid'] }}">{{ c['dept'] }} {{ c['courseNum'] }}-{{ c['section'] }}</option>
           {% endfor %}
+        </select>
+      </div>
+
+      <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text bg-white border border-right-0">
+            <!-- not the most intuitive icon here -->
+            <i class="fas fa-users"></i> 
+          </span>
+        </div>
+        <select class="form-control custom-select border border-left-0" id="type" 
+          name="type">
+          <option selected disabled>Select the type of tutoring session</option>
         </select>
       </div>
 
