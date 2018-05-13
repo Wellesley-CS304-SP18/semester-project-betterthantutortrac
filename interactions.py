@@ -61,6 +61,12 @@ def findCoursesByStudent(conn, pid):
     params = [pid]
     return getSQLQuery(conn, query, params)
 
+def findCoursesByProf(conn, pid):
+    query = """SELECT * FROM courses INNER JOIN coursesTaught USING (cid) 
+        WHERE pid=%s"""
+    params = [pid]
+    return getSQLQuery(conn, query, params)
+
 def findCoursesByTutor(conn, pid):
     query = """SELECT * FROM courses INNER JOIN tutors USING (cid)
         WHERE pid=%s"""
@@ -89,12 +95,22 @@ def findMatchingSessions(conn, searchTerm):
     return getSQLQuery(conn, query, params)
 
 def findSessionsByStudent(conn, pid):
-    query = "SELECT * FROM sessions WHERE pid=%s"
+    query = """SELECT name, dept, courseNum, section, sessionType,
+isTutor, beginTime, endTime
+FROM sessions
+INNER JOIN courses USING (cid)
+INNER JOIN users USING (pid)
+WHERE pid=%s"""
     params = [pid]
     return getSQLQuery(conn, query, params)
 
 def findSessionsByCourse(conn, cid):
-    query = "SELECT * FROM sessions WHERE cid=%s"
+    query = """SELECT name, dept, courseNum, section, sessionType,
+isTutor, beginTime, endTime
+FROM sessions
+INNER JOIN courses USING (cid)
+INNER JOIN users USING (pid)
+WHERE cid=%s"""
     params = [cid]
     return getSQLQuery(conn, query, params)
 
