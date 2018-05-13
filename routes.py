@@ -69,7 +69,6 @@ def newSession():
     if 'CAS_USERNAME' in session:
         if request.method == "POST":
             conn = interactions.getConn()
-
             username = request.form.get("username")
             courseId = request.form.get("course")
             sType = request.form.get("type")
@@ -105,8 +104,31 @@ def viewSessions():
 
     # user needs to be logged in to view sessions
     if 'CAS_USERNAME' in session:
+        username = session['CAS_USERNAME']
+        status = session['CAS_ATTRIBUTES']['cas:widmCode']
+
         conn = interactions.getConn()
-        sessions = interactions.findAllSessions(conn)
+        pid = interactions.findUsersByUsername(conn, username)[0]['pid']
+        #sessions = interactions.findAllSessions(conn)
+        if status == 'PROFESSOR':
+            # get all courses that the professor teaches
+            profCourses = interactions.findCoursesByProf(conn, pid)
+            sessions = []
+            # find all sessions for any taught courses,
+            # since professors should have access to all such session data
+            for courseData in profCourses:
+                cid = courseData['cid']
+                sessions.extend(list(interactions.findSessionsByCourse(conn, cid)))
+        elif status == 'STUDENT':
+            # first, get all sessions in which the student is a tutee
+            sessions = list(interactions.findSessionsByStudent(conn, pid))
+            # next, in case the student is a tutor, find all courses that they tutor for
+            tutorCourses = interactions.findCoursesByTutor(conn, pid)
+            # find all sessions for any tutored courses,
+            # since tutors should have access to all such session data
+            for courseData in tutorCourses:
+                cid = courseData['cid']
+                sessions.extend(list(interactions.findSessionsByCourse(conn, cid)))
         params["sessions"] = sessions
         params["isLoggedIn"] = True
         return render_template("viewSessions.html", **params)
