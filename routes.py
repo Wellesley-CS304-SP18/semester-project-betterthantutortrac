@@ -1,7 +1,7 @@
 """
 filename: routes.py
-author: Angelina Li, 
-last modified: 04/28/2018
+author: Angelina Li, Kate Kenneally, Priscilla Lee
+last modified: 05/13/2018
 description: routes for app
 """
 
@@ -10,6 +10,8 @@ import dbconn2
 from app import app
 from datetime import datetime
 from flask import render_template, flash, request, redirect, url_for, session, jsonify
+
+## logged_in/logged_out routes for CAS ##
 
 @app.route('/logged_in/')
 def logged_in():
@@ -20,6 +22,9 @@ def logged_in():
 def logged_out():
     flash('Successfully logged out!')
     return redirect(url_for('index'))
+
+
+## main route ##
 
 @app.route("/", methods=["GET"])
 @app.route("/index/", methods=["GET"])
@@ -39,6 +44,7 @@ def index():
             print '\t', k, ' => ', attribs[k]
     # end CAS debugging
     
+    # check if user is logged in via CAS
     if 'CAS_USERNAME' in session:
         isLoggedIn = True
         username = session['CAS_USERNAME']
@@ -52,9 +58,14 @@ def index():
     params["isLoggedIn"] = isLoggedIn
     return render_template("index.html", **params)
 
+
+## route for creating a new tutoring session ##
+
 @app.route("/newSession/", methods=["GET", "POST"])
 def newSession():
     params = {"title": "Insert a Tutoring Session"}
+
+    # user needs to be logged in to insert a session
     if 'CAS_USERNAME' in session:
         if request.method == "POST":
             conn = interactions.getConn()
@@ -80,13 +91,19 @@ def newSession():
         
         params["isLoggedIn"] = True
         return render_template("newSession.html", **params)
+    
     else:
         flash("Please log in to insert a session.")
         return redirect(url_for('index'))
-        
+
+
+## route for viewing tutoring sessions ##
+
 @app.route("/viewSessions/", methods=["GET"])
 def viewSessions():
     params = {"title": "View Tutoring Sessions"}
+
+    # user needs to be logged in to view sessions
     if 'CAS_USERNAME' in session:
         conn = interactions.getConn()
         sessions = interactions.findAllSessions(conn)
@@ -96,6 +113,7 @@ def viewSessions():
     else:
         flash("Please log in to view sessions.")
         return redirect(url_for('index'))
+
 
 ## javascript routes for async requests ##
 
@@ -110,8 +128,10 @@ def validateUser():
 def getUserClasses():
     conn = interactions.getConn()
     username = request.form.get("username")
+    # find user data and courses by username
     userData = interactions.findUsersByUsername(conn, username)[0]
     userCourses = interactions.findCoursesByStudent(conn, userData["pid"])
+    # format data for front-end use
     formattedCourses = []
     for course in userCourses:
         courseData = {
@@ -122,11 +142,13 @@ def getUserClasses():
                 section=course.get("section"))
         }
         formattedCourses.append(courseData)
+    # sort courses and send data to front end
     sortedCourses = sorted(formattedCourses, key=lambda c: c.get("name"))
     return jsonify({"courses": sortedCourses})
 
 @app.route("/getSessionTypes/", methods=["POST"])
 def getSessionTypes():
+    # types of tutoring sessions
     sessionTypes = [
         "ASC (Academic Success Coordinator)", 
         "Help Room", 

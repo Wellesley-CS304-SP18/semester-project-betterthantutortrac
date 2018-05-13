@@ -2,8 +2,8 @@
 
 """
 filename: interactions.py
-author: Kate Kenneally
-last modified: 05/01/2018
+authors: Kate Kenneally, Angelina Li
+last modified: 05/13/2018
 description: python to SQL interactions
 """
 
@@ -41,7 +41,7 @@ def findUsersByName(conn, name):
 
 def findUsersByEmail(conn, email):
     # emails are unique, so we can require a unique match
-    # e.g. al@wellesley.edu shouldn't return kkenneal@wellesley.edu
+    # e.g. ali@wellesley.edu shouldn't return kkenneal@wellesley.edu
     query = "SELECT * FROM users WHERE email=%s"
     params = [email]
     return getSQLQuery(conn, query, params)

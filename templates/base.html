@@ -1,7 +1,7 @@
 <!--
 filename: base.html
-author: Angelina Li, 
-last modified: 04/28/2018
+authors: Angelina Li, Kate Kenneally 
+last modified: 05/13/2018
 description: basic html template that other html pages inherit from
 -->
 
@@ -51,20 +51,22 @@ description: basic html template that other html pages inherit from
       </ul>
 
 			<ul class="nav navbar-nav pull-right">
-				{% if isLoggedIn %}
+			  {% if isLoggedIn %}
+			  <!-- insert/view session options visible if user is logged in -->
 				<li class="nav-item {{ 'active' if active_page == 'new_session' }}">
 					<a class="nav-link" href="{{ url_for('newSession') }}">Insert Session</a>
 				</li>
 				<li class="nav-item {{ 'active' if active_page == 'viewSessions' }}">
 					<a class="nav-link" href="{{ url_for('viewSessions') }}">View Sessions</a>
 				</li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('logged_out') }}">Logout</a>
-        </li>
+				<!-- login/logout options via CAS -->
+				<li class="nav-item">
+				  <a class="nav-link" href="{{ url_for('logged_out') }}">Logout</a>
+				</li>
 				{% else %}
-        <li class="nav-item">
-          <a class="nav-link" href="/login/">Login</a>
-        </li>
+				<li class="nav-item">
+				  <a class="nav-link" href="/login/">Login</a>
+				</li>
 				{% endif %}
 			</ul>
 			

@@ -1,3 +1,10 @@
+/*
+filename: newSession.js
+author: Angelina Li
+last modified: 05/13/2018
+description: JS code for newSession page
+ */
+
 $(document).ready( function() {
   
   var validateUserUrl = "/validateUser/";

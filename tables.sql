@@ -1,6 +1,6 @@
 -- filename: tables.sql --
--- author: Kate Kenneally, Angelina Li --
--- last modified: 05/12/2018 --
+-- authors: Kate Kenneally, Angelina Li --
+-- last modified: 05/13/2018 --
 -- description: SQL table DDL --
 
 use kkenneal_db;
