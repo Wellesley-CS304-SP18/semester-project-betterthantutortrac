@@ -6,9 +6,10 @@ last modified: 05/13/2018
 description: python to SQL interactions
 """
 
-import sys
-import MySQLdb
+import datetime
 import dbconn2
+import MySQLdb
+import sys
 
 database = 'kkenneal_db' # for testing; update with project db later
 
@@ -24,9 +25,35 @@ def getConn(dsn=None):
         dsn = getDsn(database)
     return dbconn2.connect(dsn)
 
+### helper functions ###
+
+def getSqlDate(dt):
+    """
+    Given a datetime.datetime object, this function will return a string
+    formatted date in a format understandable by MySQL database.
+    """
+    sqlFormat = "%Y-%m-%d %H:%M:%S"
+    return dt.strftime(sqlFormat)
+
+def getCourseName(courseData):
+    return "{dept} {courseNum}-{section}".format(**courseData)
+
+def findAllSessionTypes():
+    """
+    This function returns a list of all possible valid session types.
+    """
+    sessionTypes = [
+        "ASC (Academic Success Coordinator)",
+        "Help Room",
+        "PLTC Assigned Tutoring",
+        "Public Speaking Tutoring",
+        "SI (Supplemental Instruction)"
+    ]
+    return sessionTypes
+
 ### database interaction FIND functions ###
 
-def getSQLQuery(conn, query, params=[], fetchall=True):
+def getSqlQuery(conn, query, params=[], fetchall=True):
     curs = conn.cursor(MySQLdb.cursors.DictCursor)
     curs.execute(query, params)
     if fetchall:
@@ -36,41 +63,46 @@ def getSQLQuery(conn, query, params=[], fetchall=True):
 def findUsersByName(conn, name):
     query = "SELECT * FROM users WHERE name LIKE %s"
     params = ["%" + name + "%"]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findUsersByEmail(conn, email):
     # emails are unique, so we can require a unique match
     # e.g. ali@wellesley.edu shouldn't return kkenneal@wellesley.edu
     query = "SELECT * FROM users WHERE email=%s"
     params = [email]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findUsersByUsername(conn, username):
     email = username + "@wellesley.edu" # a wrapper around the last fn
     return findUsersByEmail(conn, email)
 
+def findCourseById(conn, cid):
+    query = "SELECT * FROM courses WHERE cid=%s"
+    params = [cid]
+    return getSqlQuery(conn, query, params)
+
 def findCoursesByName(conn, dept, courseNum):
     query = "SELECT * FROM courses WHERE dept LIKE %s AND courseNum LIKE %s"
     params = ["%" + dept + "%", "%" + courseNum + "%"]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findCoursesByStudent(conn, pid):
     query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
         WHERE pid=%s"""
     params = [pid]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findCoursesByProf(conn, pid):
     query = """SELECT * FROM courses INNER JOIN coursesTaught USING (cid) 
         WHERE pid=%s"""
     params = [pid]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findCoursesByTutor(conn, pid):
     query = """SELECT * FROM courses INNER JOIN tutors USING (cid)
         WHERE pid=%s"""
     params = [pid]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findAllSessions(conn): 
     # want student name, course name, and session type. fix up later.
@@ -80,7 +112,7 @@ def findAllSessions(conn):
         FROM sessions 
         INNER JOIN courses USING (cid) 
         INNER JOIN users USING (pid)"""
-    return getSQLQuery(conn, query)
+    return getSqlQuery(conn, query)
 
 def findMatchingSessions(conn, searchTerm):
     query = """
@@ -91,7 +123,7 @@ def findMatchingSessions(conn, searchTerm):
         INNER JOIN users USING (pid)
         WHERE name LIKE %s OR courseNum LIKE %s OR dept LIKE %s"""
     params = ["%" + searchTerm + "%" for _ in range(len(3))]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findSessionsByStudent(conn, pid):
     query = """SELECT name, dept, courseNum, section, sessionType,
@@ -101,7 +133,7 @@ def findSessionsByStudent(conn, pid):
         INNER JOIN users USING (pid)
         WHERE pid=%s"""
     params = [pid]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findSessionsByCourse(conn, cid):
     query = """SELECT name, dept, courseNum, section, sessionType,
@@ -111,20 +143,7 @@ def findSessionsByCourse(conn, cid):
         INNER JOIN users USING (pid)
         WHERE cid=%s"""
     params = [cid]
-    return getSQLQuery(conn, query, params)
-
-def findAllSessionTypes():
-    """
-    This function returns a list of all possible valid session types.
-    """
-    sessionTypes = [                                                            
-        "ASC (Academic Success Coordinator)",                                   
-        "Help Room",                                                            
-        "PLTC Assigned Tutoring",                                               
-        "Public Speaking Tutoring",                                             
-        "SI (Supplemental Instruction)"                                         
-    ]
-    return sessionTypes
+    return getSqlQuery(conn, query, params)
 
 ### database interaction INSERT functions ###
 
@@ -173,8 +192,10 @@ def insertTutorCourse(conn, data):
 
 def insertSession(conn, data):
     paramOrder = ["pid", "cid", "isTutor", "sessionType"]
-    if "tid" in data:
-        paramOrder.append("tid")
+    optionalParams = ["tid", "beginTime", "endTime"]
+    for p in optionalParams:
+        if p in data:
+            paramOrder.append(p)
     query = "INSERT INTO sessions ({pNames}) VALUES ({pVals})".format(
         pNames=", ".join(paramOrder),
         pVals=", ".join(["%s" for _ in range(len(paramOrder))])

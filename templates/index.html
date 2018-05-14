@@ -25,7 +25,7 @@
           name="course">
           <option selected disabled>Select a course</option>
           {% for c in user['tutorCourses'] %}
-          <option value="{{ c['cid'] }}">{{ c['dept'] }} {{ c['courseNum'] }}-{{ c['section'] }}</option>
+          <option value="{{ c['cid'] }}">{{ c['name'] }}</option>
           {% endfor %}
         </select>
       </div>
@@ -51,7 +51,7 @@
       <br>
 
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="autoPopulate">
+        <input class="form-check-input" type="checkbox" value="false" name="autoPopulate" id="autoPopulate">
         <label class="form-check-label" for="autoPopulate">
           Select if all students attending are a part of <span id="courseName">this class</span>.
         </label>

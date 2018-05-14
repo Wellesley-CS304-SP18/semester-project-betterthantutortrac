@@ -23,11 +23,8 @@ def logged_out():
     flash('Successfully logged out!')
     return redirect(url_for('index'))
 
-
-## main route ##
-
-@app.route("/", methods=["GET"])
-@app.route("/index/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
+@app.route("/index/", methods=["GET", "POST"])
 def index():
     params = {}
 
@@ -59,14 +56,31 @@ def index():
             userId = user.get("pid")
             courseId = request.form.get("course")
             sType = request.form.get("type")
+            populate = request.form.get("autoPopulate")
+            now = datetime.now()
+            beginTime = interactions.getSqlDate(now)
 
             sessionData = { 
                 "pid": userId,
                 "cid": courseId,
-                "isTutor": 'n',  # tutors are stored differently
+                "isTutor": 1,
+                "beginTime": beginTime,
                 "sessionType": sType}
+            insertData = interactions.insertSession(conn, sessionData)
+            
+            if insertData:
+                session["tid"] = userId
+                session["sessionType"] = sType
+                session["cid"] = courseId
+                session["autoPopulate"] = bool(populate)
+                return redirect(url_for("newSession"))
+            else:
+                flash("An error occured while starting the session.")
 
         tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
+        for c in tutorCourses:
+            c["name"] = interactions.getCourseName(c)
+
         user["isTutor"] = len(tutorCourses) > 0
         if user["isTutor"]:
             user["tutorCourses"] = tutorCourses
@@ -80,35 +94,58 @@ def index():
     params["isLoggedIn"] = isLoggedIn
     return render_template("index.html", **params)
 
-
-## route for creating a new tutoring session ##
-
 @app.route("/newSession/", methods=["GET", "POST"])
 def newSession():
-    params = {"title": "Insert a Tutoring Session"}
+    params = {}
 
     # user needs to be logged in to insert a session
     if 'CAS_USERNAME' in session:
+        conn = interactions.getConn()
+
+        tid = session.get("tid")
+        sType = session.get("sessionType")
+        tutorCourseId = session.get("cid")
+        tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
+        autoPop = session.get("autoPopulate")
+        courseId = None
+
+        if any([x == None for x in [tid, sType, tutorCourseId, autoPop]]):
+            print "tid:", tid, "sType:", sType, "tutorCourseId:", tutorCourseId, "autoPop:", autoPop
+            flash("Please start a tutoring session before entering students!")
+            return redirect(url_for("index"))
+
+        if autoPop:
+            name = interactions.getCourseName(tutorCourse)
+            params["title"] = "{name} Session".format(name=name, sType=sType)
+        else:
+            dept = tutorCourse["dept"]
+            params["title"] = "{dept} Session".format(dept=dept, sType=sType)
+
         if request.method == "POST":
-            conn = interactions.getConn()
             username = request.form.get("username")
-            courseId = request.form.get("course")
-            sType = request.form.get("type")
+            courseId = request.get("cid")
+            if courseId == None:
+                # if the courseId wasn't pre-set
+                courseId = request.form.get("course")
 
             userData = interactions.findUsersByUsername(conn, username)[0]
             userId = userData.get("pid")
-            
+
+            now = datetime.now()
+            beginTime = interactions.getSqlDate(now)
+
             # add begin and end times later
             sessionData = { 
                 "pid": userId,
                 "cid": courseId,
-                "isTutor": 'n',  # tutors are stored differently
+                "isTutor": 0,
+                "beginTime": beginTime,
                 "sessionType": sType}
             insertData = interactions.insertSession(conn, sessionData)
             if insertData:
-                flash("Tutoring session entered successfully.")
+                flash("{} logged in!".format(userData["username"]))
             else:
-                flash("Failed to enter tutoring sessions.")
+                flash("An error occured while entering session.")
         
         params["isLoggedIn"] = True
         return render_template("newSession.html", **params)
@@ -179,10 +216,7 @@ def getUserClasses():
     for course in userCourses:
         courseData = {
             "cid": course.get("cid"),
-            "name": "{dept} {num}-{section}".format(
-                dept=course.get("dept"),
-                num=course.get("courseNum"),
-                section=course.get("section"))
+            "name": interactions.getCourseName(course)
         }
         formattedCourses.append(courseData)
     # sort courses and send data to front end
