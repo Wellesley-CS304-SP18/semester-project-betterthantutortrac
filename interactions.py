@@ -35,8 +35,44 @@ def getSqlDate(dt):
     sqlFormat = "%Y-%m-%d %H:%M:%S"
     return dt.strftime(sqlFormat)
 
-def getCourseName(courseData):
-    return "{dept} {courseNum}-{section}".format(**courseData)
+def getCurrentTime():
+    """
+    Will return a dictionary containing the current year and semester.
+    This is based on the Academic Calendar for Summer 2018 - Spring 2019.
+    Eventually we may want to update this function to more closely
+    peg to the actual Wellesley Academic Calendar.
+    """
+    now = datetime.date.today()
+    year = now.year
+    semesters = [
+        {"name": "Summer I",
+        "startDate": datetime.date(year=year, month=6, day=4),
+        "endDate": datetime.date(year=year, month=6, day=29)},
+        {"name": "Summer II",
+        "startDate": datetime.date(year=year, month=7, day=2),
+        "endDate": datetime.date(year=year, month=7, day=27)},
+        {"name": "Fall", 
+        "startDate": datetime.date(year=year, month=9, day=4),
+        "endDate": datetime.date(year=year, month=12, day=20)},
+        {"name": "Winter",
+        "startDate": datetime.date(year=year, month=1, day=3),
+        "endDate": datetime.date(year=year, month=1, day=24)},
+        {"name": "Spring",
+        "startDate": datetime.date(year=year, month=1, day=28),
+        "endDate": datetime.date(year=year, month=5, day=21)}
+    ]
+    semester = None
+    for s in semesters:
+        if s["startDate"] <= now <= s["endDate"]:
+            semester = s["name"]
+            break
+    return {"year": year, "semester": semester}
+
+def getCourseName(courseData, includeSection=True):
+    nameFormat = "{dept} {courseNum}"
+    if includeSection:
+        nameFormat += "-{section}"
+    return nameFormat.format(**courseData)
 
 def findAllSessionTypes():
     """
@@ -91,16 +127,13 @@ def findCoursesByName(conn, dept, courseNum):
     params = ["%" + dept + "%", "%" + courseNum + "%"]
     return getSqlQuery(conn, query, params)
 
-def findCoursesByStudent(conn, pid):
+def findCoursesByStudent(conn, pid, dept=None):
     query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
         WHERE pid=%s"""
     params = [pid]
-    return getSqlQuery(conn, query, params)
-
-def findDeptCoursesByStudent(conn, pid, dept):
-    query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
-        WHERE pid=%s AND dept=%s"""
-    params = [pid, dept]
+    if dept:
+        query += " AND dept=%s"
+        params += [dept]
     return getSqlQuery(conn, query, params)
 
 def findCoursesByProf(conn, pid):
@@ -113,6 +146,31 @@ def findCoursesByTutor(conn, pid):
     query = """SELECT * FROM courses INNER JOIN tutors USING (cid)
         WHERE pid=%s"""
     params = [pid]
+    return getSqlQuery(conn, query, params)
+
+def findCurrentCoursesByStudent(conn, pid, dept=None):
+    timeNow = getCurrentTime()
+    # when the semester is not specified, classes are not in session.
+    if timeNow["semester"] == None:
+        return None
+
+    query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
+        WHERE pid=%s AND courses.year=%s AND semester=%s"""
+    params = [pid, timeNow["year"], timeNow["semester"]]
+    if dept:
+        query += " AND dept=%s"
+        params += [dept]
+    return getSqlQuery(conn, query, params)
+
+def findCurrentCoursesByTutor(conn, pid):
+    timeNow = getCurrentTime()
+    # when the semester is not specified, classes are not in session.
+    if timeNow["semester"] == None:
+        return None
+
+    query = """SELECT * FROM courses INNER JOIN tutors USING (cid)
+        WHERE pid=%s AND courses.year=%s AND semester=%s"""
+    params = [pid, timeNow["year"], timeNow["semester"]]
     return getSqlQuery(conn, query, params)
 
 def findAllSessions(conn): 
