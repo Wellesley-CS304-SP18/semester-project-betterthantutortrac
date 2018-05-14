@@ -65,7 +65,10 @@
 
 </div>
 <br>
+<!-- can jinja2 handle if/if blocks? -->
 {% endif %}
+
+{% if isLoggedIn %}
 
 <div class="card mx-auto bg-light card-form">
   <div class="card-header">
@@ -78,6 +81,10 @@
     </ul>
   </div>
 </div>
+{% else %}
+
+<h2>Please <a href="/login/"><b>log in</b></a> to use this site! 😊</h2>
+{% endif %}
 
 {% endblock %}
 
