@@ -137,6 +137,17 @@ def viewSessions():
             for courseData in tutorCourses:
                 cid = courseData['cid']
                 sessions.extend(list(interactions.findSessionsByCourse(conn, cid)))
+
+        # add tutor names to sessions
+        for sessionData in sessions:
+            tid = sessionData['tid']
+            tutor = interactions.getUserName(conn, tid)
+            if len(tutor) == 0:
+                sessionData['tutor'] = "None"
+            else:
+                sessionData['tutor'] = tutor[0]['name']
+        print sessions
+
         params["sessions"] = sessions
         params["isLoggedIn"] = True
         return render_template("viewSessions.html", **params)

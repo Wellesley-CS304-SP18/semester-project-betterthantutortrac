@@ -34,6 +34,11 @@ def getSQLQuery(conn, query, params=[], fetchall=True):
         return curs.fetchall()
     return curs.fetchone()
 
+def getUserName(conn, pid):
+    query = "SELECT name from users where pid=%s"
+    params = [pid]
+    return getSQLQuery(conn, query, params)
+
 def findUsersByName(conn, name):
     query = "SELECT * FROM users WHERE name LIKE %s"
     params = ["%" + name + "%"]
@@ -75,19 +80,13 @@ def findCoursesByTutor(conn, pid):
 
 def findAllSessions(conn): 
     # want student name, course name, and session type. fix up later.
-    query = """
-        SELECT name, dept, courseNum, section, sessionType, 
-               isTutor, beginTime, endTime
-        FROM sessions 
+    query = """SELECT * FROM sessions 
         INNER JOIN courses USING (cid) 
         INNER JOIN users USING (pid)"""
     return getSQLQuery(conn, query)
 
 def findMatchingSessions(conn, searchTerm):
-    query = """
-        SELECT name, dept, courseNum, section, sessionType,
-               isTutor, beginTime, endTime
-        FROM sessions
+    query = """SELECT * FROM sessions
         INNER JOIN courses USING (cid)
         INNER JOIN users USING (pid)
         WHERE name LIKE %s OR courseNum LIKE %s OR dept LIKE %s"""
@@ -95,9 +94,7 @@ def findMatchingSessions(conn, searchTerm):
     return getSQLQuery(conn, query, params)
 
 def findSessionsByStudent(conn, pid):
-    query = """SELECT name, dept, courseNum, section, sessionType,
-isTutor, beginTime, endTime
-FROM sessions
+    query = """SELECT * FROM sessions
 INNER JOIN courses USING (cid)
 INNER JOIN users USING (pid)
 WHERE pid=%s"""
@@ -105,9 +102,7 @@ WHERE pid=%s"""
     return getSQLQuery(conn, query, params)
 
 def findSessionsByCourse(conn, cid):
-    query = """SELECT name, dept, courseNum, section, sessionType,
-isTutor, beginTime, endTime
-FROM sessions
+    query = """SELECT * FROM sessions
 INNER JOIN courses USING (cid)
 INNER JOIN users USING (pid)
 WHERE cid=%s"""
