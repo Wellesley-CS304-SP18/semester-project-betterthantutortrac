@@ -118,10 +118,10 @@ def newSession():
         if autoPop:
             courseId = tutorCourseId
             name = interactions.getCourseName(tutorCourse)
-            params["title"] = "{name} Session".format(name=name, sType=sType)
+            params["title"] = "{name} Tutoring".format(name=name, sType=sType)
         else:
             dept = tutorCourse["dept"]
-            params["title"] = "{dept} Session".format(dept=dept, sType=sType)
+            params["title"] = "{dept} Tutoring".format(dept=dept, sType=sType)
             params["dept"] = dept
 
         if request.method == "POST":

@@ -2,8 +2,6 @@
 
 Tasks:
 * Need some validation for inserting data: should only be able to create sessions for the current term
-* Move the search bar from navbar to view sessions page
-* Edit navbar to exclude insert session - instead, the tutor starts a session and adds tutees as they come in
 * index page:
     * Add a list-group of possible events for all users?
 * Entering sessions:

@@ -5,9 +5,9 @@
 <h1 class="display-4">Hi{{ ' ' + user["firstName"] if isLoggedIn }}!</h1>
 
 <p class="lead">🎉  Welcome to Better Than TutorTrac 🎉</p>
+<br>
 
 {% if isLoggedIn and user["isTutor"] %}
-<br>
 <div class="card mx-auto bg-light card-form">
   <div class="card-header">
     <h3>Start a Tutoring Session</h3>
@@ -53,19 +53,31 @@
       <div class="form-check">
         <input class="form-check-input" type="checkbox" value="false" name="autoPopulate" id="autoPopulate">
         <label class="form-check-label" for="autoPopulate">
-          Select if all students attending are a part of <span id="courseName">this class</span>.
+          Check if all students attending are a part of <span id="courseName">this class</span>.
         </label>
       </div>
 
       <br>
 
-      <button type="submit" class="btn btn-primary btn-lg">Start</button>
-
+      <button type="submit" class="btn btn-wellesley-blue btn-lg">Start</button>
     </form>
   </div>
 
 </div>
+<br>
 {% endif %}
+
+<div class="card mx-auto bg-light-blue card-form">
+  <div class="card-header">
+    <h3>Quick Links</h3>
+  </div>
+  <div class="card-body">
+    <ul class="list-group list-group-flush">
+      <a href="" class="list-group-item bg-light-blue">Quick Stats</a>
+      <a href="{{ url_for('viewSessions') }}" class="list-group-item bg-light-blue">View Tutoring Sessions</a>
+    </ul>
+  </div>
+</div>
 
 {% endblock %}
 
