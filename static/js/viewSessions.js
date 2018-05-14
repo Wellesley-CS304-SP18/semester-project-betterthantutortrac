@@ -64,6 +64,30 @@ function createUpdateModalForm(modalId, tutor, student, course, sessionType) {
 	$("#" + modalId).modal();
 }
 
+function createDeleteModalForm(modalId) {
+	/* This function creates a modal that confirms whether or not a user
+	really does want to delete a given session.
+	*/
+
+	// Create the modal (composed of header and body), based off of bootstrap template.
+	var modalHeader = '<div class="modal-header">';
+	modalHeader += '<h4 class="modal-title">Delete session?</h4></div>';
+
+	var modalBody = '<div class="modal-body">Do you really want to delete this session?</div>';
+
+	var modalFooter = '<div class="modal-footer">';
+	modalFooter += '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>';
+	modalFooter += '<button type="button" class="btn btn-primary">Delete</button>';
+	modalFooter += '</div>';
+
+	var modal = '<div id="' + modalId + '" class="modal fade" tabindex="-1" role="dialog">';
+	modal += '<div class="modal-dialog modal-lg" role="document">';
+	modal += '<div class="modal-content">' + modalHeader + modalBody + modalFooter + '</div></div></div>';
+
+	// Append modal to the DOM and show it.
+	$("body").append(modal);
+	$("#" + modalId).modal();
+}
 
 /* This chunk of code sets up the sessions tables, using the DataTable plugin.
 It also binds the click event handlers to the update and delete buttons. */
@@ -103,5 +127,7 @@ $(document).ready(function() {
 		var sid = $(this).val();
 		var modalId = "delete_" + sid;
 		console.log("deleting session (id " + sid + ")");
+
+		createDeleteModalForm(modalId);
 	});
 });
