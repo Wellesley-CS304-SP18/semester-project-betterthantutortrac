@@ -206,6 +206,23 @@ def findCurrentCoursesByTutor(conn, pid):
     params = [pid, timeNow["year"], timeNow["semester"]]
     return getSqlQuery(conn, query, params)
 
+def findMatchingCourseSectionsByStudent(conn, pid, cid):
+    """
+    Given a course, will find all matching sections of that course in the
+    same time period that a specified student is attending.
+    """
+    courseData = findCourseById(conn, cid)[0]
+    courseParams = ["year", "semester", "dept", "courseNum"]
+    query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
+        WHERE pid=%s"""
+    params = [pid]
+    for p in courseParams:
+        params.append(courseData[p])
+        query += " AND {p}=%s".format(p=p)
+    print "params:", params
+    print "query:", query
+    return getSqlQuery(conn, query, params)
+
 def findAllSessions(conn):
     """
     This function returns data on all tutoring sessions.

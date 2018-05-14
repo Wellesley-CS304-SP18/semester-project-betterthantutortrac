@@ -125,7 +125,6 @@ def newSession():
         sType = session.get("sessionType")
         tutorCourseId = session.get("cid")
         autoPop = session.get("autoPopulate")
-        courseId = None
 
         if any([x == None for x in [tid, sType, tutorCourseId, autoPop]]):
             print "tid:", tid, "sType:", sType, "tutorCourseId:", tutorCourseId, "autoPop:", autoPop
@@ -135,9 +134,9 @@ def newSession():
         tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
         params["autoPop"] = autoPop
         if autoPop:
-            courseId = tutorCourseId
-            name = interactions.getCourseName(tutorCourse)
+            name = interactions.getCourseName(tutorCourse, includeSection=False)
             params["title"] = "{name} Tutoring".format(name=name, sType=sType)
+            params["cid"] = tutorCourseId
         else:
             dept = tutorCourse["dept"]
             params["title"] = "{dept} Tutoring".format(dept=dept, sType=sType)
@@ -147,9 +146,11 @@ def newSession():
 
             if request.form["submit"] == "newSession":
                 username = request.form.get("username")
-                if not courseId:
-                    # if the courseId wasn't pre-set
-                    courseId = request.form.get("course")
+                # if autoPop, then cid given by hidden input 'cid'; else, cid
+                # given by select object with name 'course'
+                courseIdName = "cid" if autoPop else "course"
+                courseId = request.form.get(courseIdName)
+                print courseId
 
                 userData = interactions.findUsersByUsername(conn, username)[0]
                 userId = userData.get("pid")
@@ -185,7 +186,6 @@ def newSession():
                 flash("Goodbye!")
                 return redirect(url_for("index"))
 
-        
         params["isLoggedIn"] = True
         return render_template("newSession.html", **params)
     
@@ -249,20 +249,39 @@ def viewSessions():
 
 @app.route("/validateUser/", methods=["POST"])
 def validateUser():
+    data = {}
     conn = interactions.getConn()
     username = request.form.get("username")
-    usersData = interactions.findUsersByUsername(conn, username)
-    return jsonify({"validate": len(usersData) == 1})
+    autoPop = request.form.get("autoPop")
+    cid = request.form.get("cid")
 
-@app.route("/getUserClasses/", methods=["POST"])
-def getUserClasses():
+    usersData = interactions.findUsersByUsername(conn, username)
+    data["validUsername"] = len(usersData) == 1
+
+    if data["validUsername"] and autoPop:
+        pid = usersData[0].get("pid")
+        userCourses = interactions.findMatchingCourseSectionsByStudent(
+            conn, pid, cid)
+        print "userCourses:", userCourses
+
+        # can a student can only ever be enrolled in one section of a course?
+        # if so, we can test if len == 1
+        data["validCourse"] = len(userCourses) > 0
+        
+        if data["validCourse"]:
+            data["studentCid"] = userCourses[0]["cid"]
+
+    return jsonify(data)
+
+@app.route("/getUserCourses/", methods=["POST"])
+def getUserCourses():
     conn = interactions.getConn()
     username = request.form.get("username")
     dept = request.form.get("dept")
     # find user data and courses by username
     userData = interactions.findUsersByUsername(conn, username)[0]
-    userCourses = interactions.findDeptCoursesByStudent(
-        conn, userData["pid"], dept)
+    userCourses = interactions.findCurrentCoursesByStudent(
+        conn, userData["pid"], dept=dept)
     # format data for front-end use
     formattedCourses = []
     for course in userCourses:

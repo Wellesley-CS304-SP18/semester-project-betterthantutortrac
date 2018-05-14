@@ -66,6 +66,7 @@ studentCourseData = [
     {"pid": 1, "cid": 3},
     {"pid": 1, "cid": 5},
     {"pid": 1, "cid": 6},
+    {"pid": 1, "cid": 8},
     {"pid": 2, "cid": 1},
     {"pid": 2, "cid": 4},
     {"pid": 3, "cid": 1},
