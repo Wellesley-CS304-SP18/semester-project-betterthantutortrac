@@ -261,6 +261,19 @@ def findMatchingSessions(conn, searchTerm):
     params = ["%" + searchTerm + "%" for _ in range(len(3))]
     return getSqlQuery(conn, query, params)
 
+def findSessionsByTutor(conn, tid):
+    """
+    Given a tutor's (unique) tid, this function returns data on all the
+    sessions they were a tutor for.
+    """
+    query = """
+        SELECT * FROM sessions
+        INNER JOIN courses USING (cid)
+        INNER JOIN users USING (pid)
+        WHERE sessions.tid=%s"""
+    params = [tid]
+    return getSqlQuery(conn, query, params)
+
 def findSessionsByStudent(conn, pid):
     """
     Given a student's (unique) pid, this function returns data on all

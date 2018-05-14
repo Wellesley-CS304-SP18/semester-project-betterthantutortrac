@@ -87,6 +87,7 @@ profCourseData = [
 tutorCourseData = [
     {"pid": 1, "cid": 7},
     {"pid": 1, "cid": 8},
+    {"pid": 2, "cid": 4},
     {"pid": 2, "cid": 7},
     {"pid": 2, "cid": 8},
     {"pid": 3, "cid": 9}

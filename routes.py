@@ -213,17 +213,28 @@ def viewSessions():
             # since professors should have access to all such session data
             for courseData in profCourses:
                 cid = courseData['cid']
-                sessions.extend(list(interactions.findSessionsByCourse(conn, cid)))
+                pSessions = list(interactions.findSessionsByCourse(conn, cid))
+                sessions += pSessions
+
         elif status == 'STUDENT':
             # first, get all sessions in which the student is a tutee
             sessions = list(interactions.findSessionsByStudent(conn, pid))
-            # next, in case the student is a tutor, find all courses that they tutor for
+
+            # next, find all courses that they tutor for
             tutorCourses = interactions.findCoursesByTutor(conn, pid)
             # find all sessions for any tutored courses,
             # since tutors should have access to all such session data
             for courseData in tutorCourses:
                 cid = courseData['cid']
-                sessions.extend(list(interactions.findSessionsByCourse(conn, cid)))
+                cSessions = list(interactions.findSessionsByCourse(conn, cid))
+                sessions += cSessions
+
+            # finally, find all sessions they tutored
+            # this could be different from the above, since department tutors
+            # come attached to one specific class, but can tutor students
+            # from different classes within the same department
+            tutorSessions = list(interactions.findSessionsByTutor(conn, pid))
+            sessions += tutorSessions
 
         # add tutor names to sessions
         for sessionData in sessions:
@@ -251,7 +262,7 @@ def validateUser():
     data = {}
     conn = interactions.getConn()
     username = request.form.get("username")
-    autoPop = request.form.get("autoPop")
+    autoPop = request.form.get("autoPop") == "true"
     cid = request.form.get("cid")
 
     usersData = interactions.findUsersByUsername(conn, username)
