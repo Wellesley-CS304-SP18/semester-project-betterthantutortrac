@@ -1,3 +1,10 @@
+"""
+filename: testData.py
+author: Kate Kenneally, Angelina Li, Priscilla Lee
+last modified: 05/13/2018
+description: module to define and insert some test data into our database.
+"""
+
 from interactions import *
 
 userData = [

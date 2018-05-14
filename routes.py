@@ -23,11 +23,8 @@ def logged_out():
     flash('Successfully logged out!')
     return redirect(url_for('index'))
 
-
-## main route ##
-
-@app.route("/", methods=["GET"])
-@app.route("/index/", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
+@app.route("/index/", methods=["GET", "POST"])
 def index():
     params = {}
 
@@ -43,7 +40,12 @@ def index():
         for k in attribs:
             print '\t', k, ' => ', attribs[k]
     # end CAS debugging
-    
+
+    # empty cookie jar from any tutoring sessions that were not logged out
+    cookieNames = ["tid", "sid", "sessionType", "cid", "autoPopulate"]
+    for c in cookieNames:
+        session.pop(c, None)
+
     # check if user is logged in via CAS
     isLoggedIn = False
     if 'CAS_USERNAME' in session:
@@ -52,50 +54,128 @@ def index():
         conn = interactions.getConn()
         username = session['CAS_USERNAME']
         user = interactions.findUsersByUsername(conn, username)[0]
-        tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
-        print tutorCourses
-
-        user["isTutor"] = len(tutorCourses) > 0
-        user["tutorCourses"] = tutorCourses
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
+
+        if request.method == "POST":
+            userId = user.get("pid")
+            courseId = request.form.get("course")
+            sType = request.form.get("type")
+            populate = request.form.get("autoPopulate")
+            now = datetime.now()
+            beginTime = interactions.getSqlDate(now)
+
+            sessionData = { 
+                "pid": userId,
+                "cid": courseId,
+                "isTutor": 1,
+                "beginTime": beginTime,
+                "sessionType": sType}
+            insertData = interactions.insertSession(conn, sessionData)
+            
+            if insertData:
+                sess = interactions.findSessionByTimeTutor(conn, beginTime, userId)
+                if len(sess) == 1:
+                    session["sid"] = sess[0]["sid"]
+
+                session["tid"] = userId
+                session["sessionType"] = sType
+                session["cid"] = courseId
+                session["autoPopulate"] = bool(populate)
+                return redirect(url_for("newSession"))
+            else:
+                flash("An error occured while starting the session.")
+
+        tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
+        for c in tutorCourses:
+            c["name"] = interactions.getCourseName(c)
+
+        user["isTutor"] = len(tutorCourses) > 0
+        if user["isTutor"]:
+            user["tutorCourses"] = tutorCourses
+            user["sessionTypes"] = interactions.findAllSessionTypes()
+        
         params["user"] = user
-        print('CAS_USERNAME is: ', username)
+        print 'CAS_USERNAME is: ', username
     else:
-        print('CAS_USERNAME is not in the session')
+        print 'CAS_USERNAME is not in the session'
     
     params["isLoggedIn"] = isLoggedIn
     return render_template("index.html", **params)
 
-
-## route for creating a new tutoring session ##
-
 @app.route("/newSession/", methods=["GET", "POST"])
 def newSession():
-    params = {"title": "Insert a Tutoring Session"}
+    params = {}
 
     # user needs to be logged in to insert a session
     if 'CAS_USERNAME' in session:
-        if request.method == "POST":
-            conn = interactions.getConn()
-            username = request.form.get("username")
-            courseId = request.form.get("course")
-            sType = request.form.get("type")
+        conn = interactions.getConn()
 
-            userData = interactions.findUsersByUsername(conn, username)[0]
-            userId = userData.get("pid")
+        tid = session.get("tid")
+        sid = session.get("sid")
+        sType = session.get("sessionType")
+        tutorCourseId = session.get("cid")
+        autoPop = session.get("autoPopulate")
+        courseId = None
+
+        if any([x == None for x in [tid, sType, tutorCourseId, autoPop]]):
+            print "tid:", tid, "sType:", sType, "tutorCourseId:", tutorCourseId, "autoPop:", autoPop
+            flash("Please start a tutoring session before entering students!")
+            return redirect(url_for("index"))
+        
+        tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
+        params["autoPop"] = autoPop
+        if autoPop:
+            courseId = tutorCourseId
+            name = interactions.getCourseName(tutorCourse)
+            params["title"] = "{name} Tutoring".format(name=name, sType=sType)
+        else:
+            dept = tutorCourse["dept"]
+            params["title"] = "{dept} Tutoring".format(dept=dept, sType=sType)
+            params["dept"] = dept
+
+        if request.method == "POST":
+
+            if request.form["submit"] == "newSession":
+                username = request.form.get("username")
+                if not courseId:
+                    # if the courseId wasn't pre-set
+                    courseId = request.form.get("course")
+
+                userData = interactions.findUsersByUsername(conn, username)[0]
+                userId = userData.get("pid")
+
+                now = datetime.now()
+                beginTime = interactions.getSqlDate(now)
+
+                # add begin and end times later
+                sessionData = { 
+                    "tid": tid,
+                    "pid": userId,
+                    "cid": courseId,
+                    "isTutor": 0,
+                    "beginTime": beginTime,
+                    "sessionType": sType}
+                insertData = interactions.insertSession(conn, sessionData)
+                if insertData:
+                    flash("{} logged in!".format(username))
+                else:
+                    flash("An error occured while entering session.")
             
-            # add begin and end times later
-            sessionData = { 
-                "pid": userId,
-                "cid": courseId,
-                "isTutor": 'n',  # tutors are stored differently
-                "sessionType": sType}
-            insertData = interactions.insertSession(conn, sessionData)
-            if insertData:
-                flash("Tutoring session entered successfully.")
             else:
-                flash("Failed to enter tutoring sessions.")
+                if sid:
+                    now = datetime.now()
+                    endTime = interactions.getSqlDate(now)
+                    updateData = interactions.updateSessionEndTime(
+                        conn, sid, endTime)
+                
+                cookieNames = ["tid", "sid", "sessionType", "cid", "autoPopulate"]
+                for c in cookieNames:
+                    session.pop(c, None)
+
+                flash("Goodbye!")
+                return redirect(url_for("index"))
+
         
         params["isLoggedIn"] = True
         return render_template("newSession.html", **params)
@@ -169,33 +249,20 @@ def validateUser():
 def getUserClasses():
     conn = interactions.getConn()
     username = request.form.get("username")
+    dept = request.form.get("dept")
     # find user data and courses by username
     userData = interactions.findUsersByUsername(conn, username)[0]
-    userCourses = interactions.findCoursesByStudent(conn, userData["pid"])
+    userCourses = interactions.findDeptCoursesByStudent(
+        conn, userData["pid"], dept)
     # format data for front-end use
     formattedCourses = []
     for course in userCourses:
         courseData = {
             "cid": course.get("cid"),
-            "name": "{dept} {num}-{section}".format(
-                dept=course.get("dept"),
-                num=course.get("courseNum"),
-                section=course.get("section"))
+            "name": interactions.getCourseName(course)
         }
         formattedCourses.append(courseData)
     # sort courses and send data to front end
     sortedCourses = sorted(formattedCourses, key=lambda c: c.get("name"))
     return jsonify({"courses": sortedCourses})
-
-@app.route("/getSessionTypes/", methods=["POST"])
-def getSessionTypes():
-    # types of tutoring sessions
-    sessionTypes = [
-        "ASC (Academic Success Coordinator)", 
-        "Help Room", 
-        "PLTC Assigned Tutoring",
-        "Public Speaking Tutoring",
-        "SI (Supplemental Instruction)"
-    ]
-    return jsonify({"types": sessionTypes})
 

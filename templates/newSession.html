@@ -2,54 +2,69 @@
 {% set active_page = "newSession" %}
 
 {% block content %}
-<div class="card mx-auto card-form">
-  <div class="card-body">
-    <form method="POST" action="" id="newSession">
-      <div class="input-group input-group-lg">
-        <div class="input-group-prepend">
-          <span class="input-group-text bg-white border border-right-0">
-            <i class="fas fa-user"></i>
-          </span>
-        </div>
-        <input type="text" id="username" name="username" class="form-control
-        border border-left-0" placeholder="Enter your Wellesley username"
-        validUsername required>
-      </div>
-      <div class="form-group" id="username-messages">
-      </div>
+<div id="accordion">
 
-      <div class="input-group input-group-lg">
-        <div class="input-group-prepend">
-          <span class="input-group-text bg-white border border-right-0">
-            <i class="fas fa-graduation-cap"></i>
-          </span>
-        </div>
-        <select class="form-control custom-select border border-left-0" id="course" 
-          name="course" readonly>
-          <option selected disabled>Select a course</option>
-        </select>
-      </div>
-      <div class="form-group" id="course-messages">
-      </div>
+  <div class="card mx-auto bg-light card-form">
+    <div class="card-header" id="newSessionHeading">
+      <h3><a class="text-wellesley-blue" data-toggle="collapse" href="#newSessionForm" aria-expanded="true" aria-controls="newSessionForm">
+        Student Login
+      </a></h3>
+    </div>
+    <div id="newSessionForm" class="collapse show" aria-labelledby="newSessionHeading" data-parent="#accordion">
+      <div class="card-body">
+        <form method="POST" action="" id="newSession">
+          <div class="input-group input-group-lg">
+            <div class="input-group-prepend">
+              <span class="input-group-text bg-white border border-right-0">
+                <i class="fas fa-user"></i>
+              </span>
+            </div>
+            <input type="text" id="username" name="username" class="form-control
+            border border-left-0" placeholder="Enter your Wellesley username"
+            validUsername required>
+          </div>
+          <div class="form-group" id="username-messages">
+          </div>
 
-      <div class="input-group input-group-lg">
-        <div class="input-group-prepend">
-          <span class="input-group-text bg-white border border-right-0">
-            <!-- not the most intuitive icon here -->
-            <i class="fas fa-users"></i> 
-          </span>
-        </div>
-        <select class="form-control custom-select border border-left-0" id="type" 
-          name="type" readonly>
-          <option selected disabled>Select the type of tutoring session</option>
-        </select>
-      </div>
-      <div class="form-group" id="type-messages">
-      </div>
+          {% if not autoPop %}
+          <input id="dept" type="hidden" value="{{ dept }}"></input>
+          <div class="input-group input-group-lg">
+            <div class="input-group-prepend">
+              <span class="input-group-text bg-white border border-right-0">
+                <i class="fas fa-graduation-cap"></i>
+              </span>
+            </div>
+            <select class="form-control custom-select border border-left-0" id="course" 
+              name="course" readonly>
+              <option selected disabled>Select a course</option>
+            </select>
+          </div>
+          <br>
+          {% endif %}
 
-      <button type="submit" class="btn btn-primary btn-lg">Submit</button>
-    </form>
+          <button type="submit" name="submit" value="newSession" class="btn btn-wellesley-blue btn-lg">Submit</button>
+        </form>
+      </div>
+    </div>
   </div>
+
+  <div class="card mx-auto bg-light card-form">
+    <div class="card-header" id="exitSessionHeading">
+      <h3><a class="text-wellesley-blue" data-toggle="collapse" href="#exitSessionForm" aria-expanded="false" aria-controls="exitSession">
+        Tutor Logout
+      </a></3>
+    </div>
+    <div id="exitSessionForm" class="collapse" aria-labelledby="exitSessionHeading" data-parent="#accordion">
+      <div class="card-body">
+        <p class="lead"><b>Tutors Only:</b><br>
+        Click the button below when you're ready to end this session!</p>
+        <form action="" method="POST" id="exitSession">
+          <button type="submit" value="exitSession" name="submit" class="btn btn-wellesley-blue btn-lg">End Tutoring Session</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 
