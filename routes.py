@@ -40,7 +40,12 @@ def index():
         for k in attribs:
             print '\t', k, ' => ', attribs[k]
     # end CAS debugging
-    
+
+    # empty cookie jar from any tutoring sessions that were not logged out
+    cookieNames = ["tid", "sid", "sessionType", "cid", "autoPopulate"]
+    for c in cookieNames:
+        session.pop(c, None)
+
     # check if user is logged in via CAS
     isLoggedIn = False
     if 'CAS_USERNAME' in session:
@@ -69,6 +74,10 @@ def index():
             insertData = interactions.insertSession(conn, sessionData)
             
             if insertData:
+                sess = interactions.findSessionByTimeTutor(conn, beginTime, userId)
+                if len(sess) == 1:
+                    session["sid"] = sess[0]["sid"]
+
                 session["tid"] = userId
                 session["sessionType"] = sType
                 session["cid"] = courseId
@@ -87,9 +96,9 @@ def index():
             user["sessionTypes"] = interactions.findAllSessionTypes()
         
         params["user"] = user
-        print('CAS_USERNAME is: ', username)
+        print 'CAS_USERNAME is: ', username
     else:
-        print('CAS_USERNAME is not in the session')
+        print 'CAS_USERNAME is not in the session'
     
     params["isLoggedIn"] = isLoggedIn
     return render_template("index.html", **params)
@@ -103,9 +112,9 @@ def newSession():
         conn = interactions.getConn()
 
         tid = session.get("tid")
+        sid = session.get("sid")
         sType = session.get("sessionType")
         tutorCourseId = session.get("cid")
-        tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
         autoPop = session.get("autoPopulate")
         courseId = None
 
@@ -114,6 +123,7 @@ def newSession():
             flash("Please start a tutoring session before entering students!")
             return redirect(url_for("index"))
         
+        tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
         params["autoPop"] = autoPop
         if autoPop:
             courseId = tutorCourseId
@@ -125,30 +135,47 @@ def newSession():
             params["dept"] = dept
 
         if request.method == "POST":
-            username = request.form.get("username")
-            if not courseId:
-                # if the courseId wasn't pre-set
-                courseId = request.form.get("course")
 
-            userData = interactions.findUsersByUsername(conn, username)[0]
-            userId = userData.get("pid")
+            if request.form["submit"] == "newSession":
+                username = request.form.get("username")
+                if not courseId:
+                    # if the courseId wasn't pre-set
+                    courseId = request.form.get("course")
 
-            now = datetime.now()
-            beginTime = interactions.getSqlDate(now)
+                userData = interactions.findUsersByUsername(conn, username)[0]
+                userId = userData.get("pid")
 
-            # add begin and end times later
-            sessionData = { 
-                "tid": tid,
-                "pid": userId,
-                "cid": courseId,
-                "isTutor": 0,
-                "beginTime": beginTime,
-                "sessionType": sType}
-            insertData = interactions.insertSession(conn, sessionData)
-            if insertData:
-                flash("{} logged in!".format(username))
+                now = datetime.now()
+                beginTime = interactions.getSqlDate(now)
+
+                # add begin and end times later
+                sessionData = { 
+                    "tid": tid,
+                    "pid": userId,
+                    "cid": courseId,
+                    "isTutor": 0,
+                    "beginTime": beginTime,
+                    "sessionType": sType}
+                insertData = interactions.insertSession(conn, sessionData)
+                if insertData:
+                    flash("{} logged in!".format(username))
+                else:
+                    flash("An error occured while entering session.")
+            
             else:
-                flash("An error occured while entering session.")
+                if sid:
+                    now = datetime.now()
+                    endTime = interactions.getSqlDate(now)
+                    updateData = interactions.updateSessionEndTime(
+                        conn, sid, endTime)
+                
+                cookieNames = ["tid", "sid", "sessionType", "cid", "autoPopulate"]
+                for c in cookieNames:
+                    session.pop(c, None)
+
+                flash("Goodbye!")
+                return redirect(url_for("index"))
+
         
         params["isLoggedIn"] = True
         return render_template("newSession.html", **params)

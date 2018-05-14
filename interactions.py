@@ -113,12 +113,21 @@ def findCoursesByTutor(conn, pid):
 def findAllSessions(conn): 
     # want student name, course name, and session type. fix up later.
     query = """
-        SELECT name, dept, courseNum, section, sessionType, 
-               isTutor, beginTime, endTime
+        SELECT *
         FROM sessions 
         INNER JOIN courses USING (cid) 
         INNER JOIN users USING (pid)"""
     return getSqlQuery(conn, query)
+
+def findSessionByTimeTutor(conn, beginTime, tid):
+    query = """
+        SELECT *
+        FROM sessions
+        INNER JOIN courses USING (cid)
+        INNER JOIN users USING (pid)
+        WHERE beginTime=%s AND pid=%s AND isTutor=1"""
+    params = [beginTime, tid]
+    return getSqlQuery(conn, query, params)
 
 def findMatchingSessions(conn, searchTerm):
     query = """
@@ -132,8 +141,9 @@ def findMatchingSessions(conn, searchTerm):
     return getSqlQuery(conn, query, params)
 
 def findSessionsByStudent(conn, pid):
-    query = """SELECT name, dept, courseNum, section, sessionType,
-        isTutor, beginTime, endTime
+    query = """
+        SELECT name, dept, courseNum, section, sessionType,
+               isTutor, beginTime, endTime
         FROM sessions
         INNER JOIN courses USING (cid)
         INNER JOIN users USING (pid)
@@ -208,3 +218,19 @@ def insertSession(conn, data):
     )
     params = [data[p] for p in paramOrder]
     return insertData(conn, query, params)
+
+### update interactions ###
+
+def updateData(conn, query, params):
+    try:
+        curs = conn.cursor(MySQLdb.cursors.DictCursor)
+        curs.execute(query, params)
+        return True
+    except Exception as e:
+        print "Exception:", e
+        return False
+
+def updateSessionEndTime(conn, sid, endTime):
+    query = "UPDATE sessions SET endTime=%s WHERE sid=%s"
+    params = [endTime, sid]
+    return updateData(conn, query, params)
