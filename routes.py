@@ -229,12 +229,14 @@ def viewSessions():
         for sessionData in sessions:
             tid = sessionData['tid']
             tutor = interactions.getUserName(conn, tid)
-            if len(tutor) == 0:
-                sessionData['tutor'] = "None"
-            else:
+            if len(tutor) != 0:
                 sessionData['tutor'] = tutor[0]['name']
 
-        params["sessions"] = sessions
+        # get unique sessions - this is inefficient, might want to change
+        # in the future
+        setTupItems = set(tuple(item.items()) for item in sessions)
+        uniqueSessions = [dict(tupItems) for tupItems in setTupItems]
+        params["sessions"] = uniqueSessions
         params["isLoggedIn"] = True
         return render_template("viewSessions.html", **params)
     else:

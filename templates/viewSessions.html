@@ -23,8 +23,8 @@
     <tbody>
     {% for s in sessions %}
     <tr>
-        <td>{{ s.tutor }}</td>
-        <td>{{ s.name }}</td>
+        <td>{{ s.name if s.isTutor else s.tutor }}</td>
+        <td>{{ s.name if not s.isTutor }}</td>
         <td>{{ s.dept }} {{ s.courseNum }}-{{ s.section }}</td>
         <td>{{ s.sessionType }}</td>
         <td>{{ s.beginTime }}</td>
