@@ -23,17 +23,17 @@
     <tbody>
     {% for s in sessions %}
     <tr>
-        <td>{{ 'x' if s.isTutor == 1 }} {{ s.tutor }}</td>
+        <td>{{ s.tutor }}</td>
         <td>{{ s.name }}</td>
         <td>{{ s.dept }} {{ s.courseNum }}-{{ s.section }}</td>
         <td>{{ s.sessionType }}</td>
         <td>{{ s.beginTime }}</td>
         <td>{{ s.endTime }}</td>
         <td>
-          <button type="button" class="btn btn-primary update_button" value="{{ s.name }} {{ s.sid }}">Update</button>
+          <button type="button" class="btn btn-primary update_button" value="{{ s.sid }}">Update</button>
         </td>
         <td>
-          <button type="button" class="btn btn-danger delete_button" value="{{ s.name }} {{ s.sid }}">Delete</button>
+          <button type="button" class="btn btn-danger delete_button" value="{{ s.sid }}">Delete</button>
         </td>
     </tr>
     {% endfor %}
