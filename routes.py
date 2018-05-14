@@ -113,18 +113,20 @@ def newSession():
             print "tid:", tid, "sType:", sType, "tutorCourseId:", tutorCourseId, "autoPop:", autoPop
             flash("Please start a tutoring session before entering students!")
             return redirect(url_for("index"))
-
+        
+        params["autoPop"] = autoPop
         if autoPop:
+            courseId = tutorCourseId
             name = interactions.getCourseName(tutorCourse)
             params["title"] = "{name} Session".format(name=name, sType=sType)
         else:
             dept = tutorCourse["dept"]
             params["title"] = "{dept} Session".format(dept=dept, sType=sType)
+            params["dept"] = dept
 
         if request.method == "POST":
             username = request.form.get("username")
-            courseId = request.get("cid")
-            if courseId == None:
+            if not courseId:
                 # if the courseId wasn't pre-set
                 courseId = request.form.get("course")
 
@@ -136,6 +138,7 @@ def newSession():
 
             # add begin and end times later
             sessionData = { 
+                "tid": tid,
                 "pid": userId,
                 "cid": courseId,
                 "isTutor": 0,
@@ -143,7 +146,7 @@ def newSession():
                 "sessionType": sType}
             insertData = interactions.insertSession(conn, sessionData)
             if insertData:
-                flash("{} logged in!".format(userData["username"]))
+                flash("{} logged in!".format(username))
             else:
                 flash("An error occured while entering session.")
         
@@ -208,9 +211,11 @@ def validateUser():
 def getUserClasses():
     conn = interactions.getConn()
     username = request.form.get("username")
+    dept = request.form.get("dept")
     # find user data and courses by username
     userData = interactions.findUsersByUsername(conn, username)[0]
-    userCourses = interactions.findCoursesByStudent(conn, userData["pid"])
+    userCourses = interactions.findDeptCoursesByStudent(
+        conn, userData["pid"], dept)
     # format data for front-end use
     formattedCourses = []
     for course in userCourses:
@@ -222,10 +227,4 @@ def getUserClasses():
     # sort courses and send data to front end
     sortedCourses = sorted(formattedCourses, key=lambda c: c.get("name"))
     return jsonify({"courses": sortedCourses})
-
-@app.route("/getSessionTypes/", methods=["POST"])
-def getSessionTypes():
-    # types of tutoring sessions
-    sessionTypes = interactions.findAllSessionTypes()
-    return jsonify({"types": sessionTypes})
 

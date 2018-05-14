@@ -9,9 +9,7 @@ $(document).ready( function() {
   
   var validateUserUrl = "/validateUser/";
   var userCoursesUrl = "/getUserClasses/";
-  var userTypeUrl = "/getSessionTypes/";
   var defaultCourseText = "Select a course";
-  var defaultTypeText = "Select the type of tutoring session";
   var unknownUsernameText = "Unknown username";
 
   function resetSelect(selector, disabledText) {
@@ -38,10 +36,10 @@ $(document).ready( function() {
         .text(optionText));
   }
   
-  function addUserCourses(username) {
+  function addUserCourses(username, dept) {
     $.post(
       userCoursesUrl,
-      {"username": username},
+      {"username": username, "dept": dept},
       function (data) {
         var userCourses = data.courses;
         for(i=0; i < userCourses.length; i++) {
@@ -51,28 +49,13 @@ $(document).ready( function() {
         $("#course").attr("readonly", false);
       });
   }
-  
-  function addTypes() {
-    $.post (
-      userTypeUrl,
-      function (data) {
-        var sessionTypes = data.types;
-        for(i=0; i < sessionTypes.length; i++) {
-          type = sessionTypes[i];
-          addOption("#type", type, type);
-        }
-        $("#type").attr("readonly", false);
-      });
-  }
 
-  function populateFields(username, valid) {
+  function populateFields(username, dept, valid) {
     $("#username-messages").empty();
     resetSelect("#course", defaultCourseText);
-    resetSelect("#type", defaultTypeText);
 
     if (valid) {
-      addUserCourses(username);
-      addTypes();
+      addUserCourses(username, dept);
     } else {
       addErrorMessage("#username-messages", unknownUsernameText);
     }
@@ -80,13 +63,13 @@ $(document).ready( function() {
 
   $("#username").on("input", function (event) {
     var username = $(this).val();
+    var dept = $("#dept").val();
     $.post(
       validateUserUrl,
       {"username": username},
-      function (data) { populateFields(username, data.validate); }
+      function (data) { populateFields(username, dept, data.validate); }
     );
   
   });
-
 
 });

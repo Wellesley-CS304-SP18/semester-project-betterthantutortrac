@@ -4,7 +4,7 @@
 {% block content %}
 <div id="accordion">
 
-  <div class="card mx-auto card-form">
+  <div class="card mx-auto bg-light card-form">
     <div class="card-header" id="newSessionHeading">
       <a class="btn btn-link btn-lg" data-toggle="collapse" href="#newSessionForm" role="button" aria-expanded="true" aria-controls="newSessionForm">
         Student Login
@@ -26,6 +26,8 @@
           <div class="form-group" id="username-messages">
           </div>
 
+          {% if not autoPop %}
+          <input id="dept" type="hidden" value="{{ dept }}"></input>
           <div class="input-group input-group-lg">
             <div class="input-group-prepend">
               <span class="input-group-text bg-white border border-right-0">
@@ -37,8 +39,8 @@
               <option selected disabled>Select a course</option>
             </select>
           </div>
-          <div class="form-group" id="course-messages">
-          </div>
+          <br>
+          {% endif %}
 
           <button type="submit" class="btn btn-primary btn-lg">Submit</button>
         </form>
@@ -46,7 +48,7 @@
     </div>
   </div>
 
-  <div class="card mx-auto card-form">
+  <div class="card mx-auto bg-light card-form">
     <div class="card-header" id="exitSessionHeading">
       <a class="btn btn-link btn-lg" data-toggle="collapse" href="#exitSessionForm" role="button" aria-expanded="false" aria-controls="exitSession">
         Tutor Logout
