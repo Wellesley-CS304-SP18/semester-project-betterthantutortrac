@@ -127,7 +127,6 @@ def newSession():
         autoPop = session.get("autoPopulate")
 
         if any([x == None for x in [tid, sType, tutorCourseId, autoPop]]):
-            print "tid:", tid, "sType:", sType, "tutorCourseId:", tutorCourseId, "autoPop:", autoPop
             flash("Please start a tutoring session before entering students!")
             return redirect(url_for("index"))
         
@@ -150,7 +149,6 @@ def newSession():
                 # given by select object with name 'course'
                 courseIdName = "cid" if autoPop else "course"
                 courseId = request.form.get(courseIdName)
-                print courseId
 
                 userData = interactions.findUsersByUsername(conn, username)[0]
                 userId = userData.get("pid")
@@ -235,7 +233,6 @@ def viewSessions():
                 sessionData['tutor'] = "None"
             else:
                 sessionData['tutor'] = tutor[0]['name']
-        print sessions
 
         params["sessions"] = sessions
         params["isLoggedIn"] = True
@@ -262,7 +259,6 @@ def validateUser():
         pid = usersData[0].get("pid")
         userCourses = interactions.findMatchingCourseSectionsByStudent(
             conn, pid, cid)
-        print "userCourses:", userCourses
 
         # can a student can only ever be enrolled in one section of a course?
         # if so, we can test if len == 1

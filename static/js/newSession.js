@@ -87,8 +87,6 @@ $(document).ready( function() {
     $("#username-messages").empty();
     resetSelect("#course", defaultCourseText);
     $("#submitNewSession").attr("disabled", false);
-    console.log(validateData);
-    console.log("autoPop: " + autoPop);
 
     if (!validateData.validUsername) {
       addErrorMessage("#username-messages", unknownUsernameText, 
