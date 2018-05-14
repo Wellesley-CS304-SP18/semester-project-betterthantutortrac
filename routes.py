@@ -85,14 +85,23 @@ def index():
                 return redirect(url_for("newSession"))
             else:
                 flash("An error occured while starting the session.")
-
-        tutorCourses = interactions.findCoursesByTutor(conn, user["pid"])
+        
+        # for tutors who tutor multiple sections of the same course,
+        # the cid for their tutoring session will be for one section
+        # of the course (order unspecified)
+        tutorCourses = interactions.findCurrentCoursesByTutor(conn, user["pid"])
+        uniqueCourseNames = []
+        uniqueTutorCourses = []
         for c in tutorCourses:
-            c["name"] = interactions.getCourseName(c)
+            name = interactions.getCourseName(c, includeSection=False)
+            if name not in uniqueCourseNames:
+                c["name"] = name
+                uniqueTutorCourses.append(c)
+                uniqueCourseNames.append(name)
 
-        user["isTutor"] = len(tutorCourses) > 0
+        user["isTutor"] = len(uniqueTutorCourses) > 0
         if user["isTutor"]:
-            user["tutorCourses"] = tutorCourses
+            user["tutorCourses"] = uniqueTutorCourses
             user["sessionTypes"] = interactions.findAllSessionTypes()
         
         params["user"] = user
