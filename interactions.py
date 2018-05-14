@@ -63,7 +63,7 @@ def getSqlQuery(conn, query, params=[], fetchall=True):
 def getUserName(conn, pid):
     query = "SELECT name from users where pid=%s"
     params = [pid]
-    return getSQLQuery(conn, query, params)
+    return getSqlQuery(conn, query, params)
 
 def findUsersByName(conn, name):
     query = "SELECT * FROM users WHERE name LIKE %s"
