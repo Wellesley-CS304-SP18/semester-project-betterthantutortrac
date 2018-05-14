@@ -108,6 +108,23 @@ def getUserName(conn, pid):
     params = [pid]
     return getSqlQuery(conn, query, params) # False?
 
+def getSession(conn, sid):
+    """
+    Given a session's (unique) sid, this function returns particular pieces of
+    information about the session (i.e. the information needed to display the
+    sessions table on the viewSessions page.
+    """
+    query = """SELECT * FROM 
+(SELECT s.sid, s.tid, s.sessionType, u.name as student, c.dept, c.courseNum, c.section, s.beginTime, s.endTime 
+FROM sessions AS s 
+INNER JOIN users AS u USING (pid) 
+INNER JOIN courses AS c USING (cid) 
+WHERE sid=%s) AS temp 
+INNER JOIN users WHERE (tid=pid);
+"""
+    params = [sid]
+    return getSqlQuery(conn, query, params) # False?
+
 def findUsersByName(conn, name):
     """
     Given a name, this function returns data for all matching users.

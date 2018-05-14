@@ -303,3 +303,10 @@ def getUserCourses():
     sortedCourses = sorted(formattedCourses, key=lambda c: c.get("name"))
     return jsonify({"courses": sortedCourses})
 
+@app.route("/getSession/", methods=["POST"])
+def getSession():
+    conn = interactions.getConn()
+    sid = request.form.get("sid")
+    # grab the session
+    session = interactions.getSession(conn, sid)[0]
+    return jsonify(session)
