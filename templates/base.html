@@ -59,11 +59,16 @@ description: basic html template that other html pages inherit from
 
 	<div class="container text-center">
 		<!-- flashed messages -->
-		{% with messages = get_flashed_messages() %}
+		{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %}
 		<ul class="list-group">
-		{% for m in messages %}
-			<li class="list-group-item list-group-item-info">{{ m }}</li>
+		{% for c, m in messages %}
+    {% if c == "error" %}
+      {% set c = "danger" %}
+    {% elif c == "message" or not c %}
+      {% set c = "info" %}
+    {% endif %}
+      <li class="list-group-item list-group-item-{{ c }}">{{ m }}</li>
 		{% endfor %}
 		</ul>
 		<br>
