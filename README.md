@@ -56,7 +56,7 @@ Beta version:
     * Should use containers on front end when we want them (e.g. on index page)
     * should go through and change snake cased functions / routes / etc. to camel case
 * Refactor the boolean logic in our routes!
-* Add a list of users (one line per user)
+* Allow tutors to add a list of users faster (one line per user)
 * Front end bonus points:
     * Add a favicon if we'd like!
         * And if you're going to do that, might as well add a logo of some sort.
