@@ -13,6 +13,18 @@ $(document).ready( function() {
   var unknownUsernameText = "Unknown username";
   var invalidCourseText = "This user is not taking this course!";
 
+  function renderTemplate(templateSelector, data) {
+    /* templateSelector: a jQuery selector representing a mustache template object.
+     * data: JSON data to populate the template with.
+     * This function will parse & render an object as formatted using the mustache
+     * templating engine, populated with the data as specified in data.
+     * */
+    var template = $(templateSelector).html();
+    Mustache.parse(template);
+    var rendered = Mustache.render(template, data);
+    return rendered;
+  }
+
   function resetSelect(selector, disabledText) {
     /* selector: a jQuery selector representing object(s) of type select.
      * disabledText: text to display as the default disabled select
@@ -23,10 +35,7 @@ $(document).ready( function() {
     $(selector).empty();
     $(selector).attr("readonly", true);
     $(selector).append(
-      $("<option></option>")
-        .attr("selected", true)
-        .attr("disabled", true)
-        .text(disabledText));
+      renderTemplate("#inactive-option-template", {"text": disabledText}));
   }
 
   function addErrorMessage(selector, errorText, submitSelector) {
@@ -37,9 +46,7 @@ $(document).ready( function() {
      * specified selector, and disable the submit button specified.
      * */
     $(selector).append(
-      $("<p></p>")
-        .addClass("text-error form-text")
-        .text(errorText));
+      renderTemplate("#error-msg-template", {"text": errorText}));
     $(submitSelector).attr("disabled", true);
   }
 
@@ -51,9 +58,8 @@ $(document).ready( function() {
      * text 'optionText' to the specified select object.
      * */
     $(selector).append(
-      $("<option></option>")
-        .attr("value", optionValue)
-        .text(optionText));
+      renderTemplate("#option-template", 
+        {"text": optionText, "value": optionValue}));
   }
   
   function addUserCourses(username, dept) {
@@ -85,8 +91,8 @@ $(document).ready( function() {
      * */
 
     $("#username-messages").empty();
-    resetSelect("#course", defaultCourseText);
     $("#submitNewSession").attr("disabled", false);
+    resetSelect("#course", defaultCourseText);
 
     if (!validateData.validUsername) {
       addErrorMessage("#username-messages", unknownUsernameText, 

@@ -42,7 +42,11 @@
 {% endblock %}
 
 {% block js %}
+<!-- vendor js -->
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.js"></script>
+
+<!-- custom js -->
 <script src="{{ url_for('static', filename='js/viewSessions.js') }}"></script>
 {% endblock %}

@@ -72,5 +72,24 @@
 {% endblock %}
 
 {% block js %}
+<!-- vendor js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.js"></script>
+
+<!-- mustache templates - wrapped in raw tag to prevent jinja2 interferance -->
+{% raw %}
+<script id="inactive-option-template" type="x-tmpl-mustache"> 
+<option selected disabled>{{ text }}</option>
+</script>
+
+<script id="option-template" type="x-tmpl-mustache">
+<option value={{ value }}>{{ text }}</option>
+</script>
+
+<script id="error-msg-template" type="x-tmpl-mustache">
+<p class="text-error form-text">{{ text }}</p>
+</script>
+{% endraw %}
+
+<!-- custom js -->
 <script src="{{ url_for('static', filename='js/newSession.js') }}"></script>
 {% endblock %}
