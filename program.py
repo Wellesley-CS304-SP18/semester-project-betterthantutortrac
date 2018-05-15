@@ -24,8 +24,7 @@ def logOutTutorSession(conn):
     if "sid" in session:
         loggedOut = False
         sid = session["sid"]
-        now = datetime.now()
-        endTime = interactions.getSqlDate(now)
+        endTime = interactions.getSqlDate(datetime.now())
         update = interactions.updateSessionEndTime(conn, sid, endTime)
     for c in cookieNames:
         if c in session:

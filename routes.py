@@ -17,6 +17,10 @@ from functools import wraps
 ## decorator ##
 
 def loginRequired(f):
+    """
+    Decorator will require the user to login before accessing specified route
+    Code from: http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
+    """
     @wraps(f)
     def decoratedFunction(*args, **kwargs):
         if "CAS_USERNAME" not in session:
@@ -41,32 +45,51 @@ def logged_out():
 @app.route("/", methods=["GET", "POST"])
 @app.route("/index/", methods=["GET", "POST"])
 def index():
-    params = {}
+    params = {"isLoggedIn": "CAS_USERNAME" in session}
     conn = interactions.getConn()
 
     # if tutor forgot to log out, log them out and warn them
     # empty cookie jar from any tutoring sessions that were not logged out
     loggedOut = program.logOutTutorSession(conn)
     if not loggedOut:
-        flash("You were automatically logged out of a tutoring session. Please remember to log out next time before you leave!", category="warning")
+        flash("You were automatically logged out of a tutoring session. " + 
+            "Please remember to log out next time before you leave!", 
+            category="warning")
 
     # check if user is logged in via CAS
-    isLoggedIn = False
-    if 'CAS_USERNAME' in session:
-        isLoggedIn = True
-        
-        username = session['CAS_USERNAME']
+    if params["isLoggedIn"]:
+        username = session['CAS_USERNAME'] # seems prone to manipulation
         user = interactions.findUsersByUsername(conn, username)[0]
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
 
-        if request.method == "POST":
+        if request.method == "GET":
+            ## could replace this all if structuring schema differently
+            # for tutors who tutor multiple sections of the same course,
+            # the cid for their tutoring session will be for one section
+            # of the course (order unspecified)
+            tutorCourses = interactions.findCurrentCoursesByTutor(conn, user["pid"])
+            uniqueCourseNames = []
+            uniqueTutorCourses = []
+            for c in tutorCourses:
+                name = interactions.getCourseName(c, includeSection=False)
+                if name not in uniqueCourseNames:
+                    c["name"] = name
+                    uniqueTutorCourses.append(c)
+                    uniqueCourseNames.append(name)
+            
+            user["isTutor"] = len(uniqueTutorCourses) > 0
+            if user["isTutor"]:
+                user["tutorCourses"] = uniqueTutorCourses
+                user["sessionTypes"] = interactions.findAllSessionTypes()
+            
+            params["user"] = user
+        
+        else:
             userId = user.get("pid")
             courseId = request.form.get("course")
             sType = request.form.get("type")
-            populate = request.form.get("autoPopulate")
-            now = datetime.now()
-            beginTime = interactions.getSqlDate(now)
+            beginTime = interactions.getSqlDate(datetime.now())
 
             sessionData = { 
                 "pid": userId,
@@ -76,44 +99,22 @@ def index():
                 "sessionType": sType}
             insertData = interactions.insertSession(conn, sessionData)
             
-            if insertData:
-                sess = interactions.findSessionByTimeTutor(conn, beginTime, userId)
+            if not insertData:
+                flash("An error occured while starting the session.", 
+                    category="warning")
+            else:
+                # if successful, start new session
+                sess = interactions.findSessionByTimeTutor(
+                    conn, beginTime, userId)
                 if len(sess) == 1:
                     session["sid"] = sess[0]["sid"]
 
                 session["tid"] = userId
                 session["sessionType"] = sType
                 session["cid"] = courseId
-                session["autoPopulate"] = bool(populate)
+                session["autoPopulate"] = bool(request.form.get("autoPopulate"))
                 return redirect(url_for("newSession"))
-            else:
-                flash("An error occured while starting the session.", 
-                    category="warning")
-        
-        # for tutors who tutor multiple sections of the same course,
-        # the cid for their tutoring session will be for one section
-        # of the course (order unspecified)
-        tutorCourses = interactions.findCurrentCoursesByTutor(conn, user["pid"])
-        uniqueCourseNames = []
-        uniqueTutorCourses = []
-        for c in tutorCourses:
-            name = interactions.getCourseName(c, includeSection=False)
-            if name not in uniqueCourseNames:
-                c["name"] = name
-                uniqueTutorCourses.append(c)
-                uniqueCourseNames.append(name)
-
-        user["isTutor"] = len(uniqueTutorCourses) > 0
-        if user["isTutor"]:
-            user["tutorCourses"] = uniqueTutorCourses
-            user["sessionTypes"] = interactions.findAllSessionTypes()
-        
-        params["user"] = user
-        print 'CAS_USERNAME is:', username
-    else:
-        print 'CAS_USERNAME is not in the session'
-    
-    params["isLoggedIn"] = isLoggedIn
+     
     return render_template("index.html", **params)
 
 @app.route("/newSession/", methods=["GET", "POST"])
@@ -128,8 +129,12 @@ def newSession():
     tutorCourseId = session.get("cid")
     autoPop = session.get("autoPopulate")
 
-    if any([x == None for x in [tid, sType, tutorCourseId, autoPop]]):
-        flash("Please start a tutoring session before entering students!")
+    # require you to start a session first before enterring student data
+    notStartedSession = any([x == None for x in 
+        [tid, sType, tutorCourseId, autoPop]])
+    if notStartedSession:
+        flash("Please start a tutoring session before entering students!",
+            category="warning")
         return redirect(url_for("index"))
     
     tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
@@ -144,35 +149,32 @@ def newSession():
         params["dept"] = dept
 
     if request.method == "POST":
-
-        if request.form["submit"] == "newSession":
+        submitType = request.form["submit"]
+        
+        if submitType == "newSession":
             username = request.form.get("username")
             # if autoPop, then cid given by hidden input 'cid'; else, cid
             # given by select object with name 'course'
+            # this seems sort of a hassle - can fix this later
             courseIdName = "cid" if autoPop else "course"
-            courseId = request.form.get(courseIdName)
-
             userData = interactions.findUsersByUsername(conn, username)[0]
-            userId = userData.get("pid")
 
-            now = datetime.now()
-            beginTime = interactions.getSqlDate(now)
-
-            # add begin and end times later
             sessionData = { 
                 "tid": tid,
-                "pid": userId,
-                "cid": courseId,
+                "pid": userData.get("pid"),
+                "cid": request.form.get(courseIdName),
+                "beginTime": interactions.getSqlDate(datetime.now()),
                 "isTutor": 0,
-                "beginTime": beginTime,
                 "sessionType": sType}
             insertData = interactions.insertSession(conn, sessionData)
+            
             if insertData:
-                flash("{} logged in!".format(username))
+                flash("{} logged in!".format(username), category="success")
             else:
-                flash("An error occured while entering session.")
+                flash("An error occured while entering session.", 
+                    category="error")
         
-        else:
+        elif submitType == "exitSession":
             program.logOutTutorSession(conn)
             flash("Goodbye!")
             return redirect(url_for("index"))
@@ -192,7 +194,7 @@ def viewSessions():
     conn = interactions.getConn()
     pid = interactions.findUsersByUsername(conn, username)[0]['pid']
     if status == 'PROFESSOR':
-        # get all courses that the professor teaches
+        
         profCourses = interactions.findCoursesByProf(conn, pid)
         sessions = []
         # find all sessions for any taught courses,
@@ -235,7 +237,6 @@ def viewSessions():
     uniqueSessions = [dict(tupItems) for tupItems in setTupItems]
     params["sessions"] = uniqueSessions
     return render_template("viewSessions.html", **params)
-
 
 ## javascript routes for async requests ##
 
