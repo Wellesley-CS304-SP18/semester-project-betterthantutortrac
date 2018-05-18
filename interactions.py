@@ -108,21 +108,17 @@ def getUserName(conn, pid):
     params = [pid]
     return getSqlQuery(conn, query, params) # False?
 
-def getSession(conn, sid):
+def findUsers(conn, searchTerm, searchValue):
     """
-    Given a session's (unique) sid, this function returns particular pieces of
-    information about the session (i.e. the information needed to display the
-    sessions table on the viewSessions page.
+    Given a user's (unique) searchTerm and searchValye, this function
+    returns the specified user's data.
     """
-    query = """SELECT * FROM 
-        (SELECT s.sid, s.tid, s.sessionType, u.name as student, c.dept, c.courseNum, c.section, s.beginTime, s.endTime 
-        FROM sessions AS s 
-        INNER JOIN users AS u USING (pid) 
-        INNER JOIN courses AS c USING (cid) 
-        WHERE sid=%s) AS temp 
-        INNER JOIN users WHERE (tid=pid);"""
-    params = [sid]
-    return getSqlQuery(conn, query, params) # False?
+    if "searchTerm" == "username":
+        # just a wrapper around email searching
+        return findUsers(conn, "email", searchValue + "@wellesley.edu")
+    query = "SELECT * FROM users WHERE {}=%s".format(searchTerm)
+    params = [searchValue]
+    return getSqlQuery(conn, query, params, fetchall=False)
 
 def findUsersByName(conn, name):
     """
@@ -138,7 +134,7 @@ def findUsersByEmail(conn, email):
     """
     query = "SELECT * FROM users WHERE email=%s"
     params = [email]
-    return getSqlQuery(conn, query, params) # False?
+    return getSqlQuery(conn, query, params, fetchall=False)
 
 def findUsersByUsername(conn, username):
     """
@@ -153,7 +149,7 @@ def findCourseById(conn, cid):
     """
     query = "SELECT * FROM courses WHERE cid=%s"
     params = [cid]
-    return getSqlQuery(conn, query, params) # False?
+    return getSqlQuery(conn, query, params, fetchall=False)
 
 def findCoursesByName(conn, dept, courseNum):
     """
@@ -227,7 +223,7 @@ def findMatchingCourseSectionsByStudent(conn, pid, cid):
     Given a course, will find all matching sections of that course in the
     same time period that a specified student is attending.
     """
-    courseData = findCourseById(conn, cid)[0]
+    courseData = findCourseById(conn, cid)
     courseParams = ["year", "semester", "dept", "courseNum"]
     query = """SELECT * FROM courses INNER JOIN coursesTaken USING (cid)
         WHERE pid=%s"""
@@ -243,13 +239,40 @@ def findAllSessions(conn):
     """
     This function returns data on all tutoring sessions.
     """
-    # want student name, course name, and session type. fix up later.
     query = """
         SELECT *
         FROM sessions
         INNER JOIN courses USING (cid)
         INNER JOIN users USING (pid)"""
     return getSqlQuery(conn, query)
+
+def findSessions(conn, searchTerm, searchValue):
+    """
+    Given a search term and a search value, this function returns data on
+    all of the sessions that the user is searching over.
+    """
+    query = """SELECT * FROM sessions
+        INNER JOIN courses USING (cid)
+        INNER JOIN users USING (pid)
+        WHERE {}=%s""".format(searchTerm)
+    params = [searchValue]
+    return getSqlQuery(conn, query, params)
+
+def findSessionById(conn, sid):
+    """
+    Given a session's (unique) sid, this function returns particular pieces of
+    information about the session (i.e. the information needed to display the
+    sessions table on the viewSessions page.
+    """
+    query = """SELECT * FROM 
+        (SELECT s.sid, s.tid, s.sessionType, u.name as student, c.dept, c.courseNum, c.section, s.beginTime, s.endTime 
+        FROM sessions AS s 
+        INNER JOIN users AS u USING (pid) 
+        INNER JOIN courses AS c USING (cid) 
+        WHERE sid=%s) AS temp 
+        INNER JOIN users WHERE (tid=pid);"""
+    params = [sid]
+    return getSqlQuery(conn, query, params, fetchall=False)
 
 def findSessionByTimeTutor(conn, beginTime, tid):
     """
@@ -277,51 +300,11 @@ def findMatchingSessions(conn, searchTerm):
     params = ["%" + searchTerm + "%" for _ in range(len(3))]
     return getSqlQuery(conn, query, params)
 
-def findSessionsByTutor(conn, tid):
-    """
-    Given a tutor's (unique) tid, this function returns data on all the
-    sessions they were a tutor for.
-    """
-    query = """
-        SELECT * FROM sessions
-        INNER JOIN courses USING (cid)
-        INNER JOIN users USING (pid)
-        WHERE sessions.tid=%s"""
-    params = [tid]
-    return getSqlQuery(conn, query, params)
-
-def findSessionsByStudent(conn, pid):
-    """
-    Given a student's (unique) pid, this function returns data on all
-    tutoring sessions the student has attended.
-    """
-    query = """
-        SELECT *
-        FROM sessions
-        INNER JOIN courses USING (cid)
-        INNER JOIN users USING (pid)
-        WHERE pid=%s"""
-    params = [pid]
-    return getSqlQuery(conn, query, params)
-
-def findSessionsByCourse(conn, cid):
-    """
-    Given a course's (unique) cid, this function returns data on all
-    tutoring sessions for the course.
-    """
-    query = """SELECT *
-        FROM sessions
-        INNER JOIN courses USING (cid)
-        INNER JOIN users USING (pid)
-        WHERE cid=%s"""
-    params = [cid]
-    return getSqlQuery(conn, query, params)
-
 ### database interaction INSERT functions ###
 
-def insertData(conn, query, params):
+def executeQuery(conn, query, params):
     """
-    This function executes a given SQL INSERT query and
+    This function executes a given SQL query and
     returns True if the query is successful and False otherwise.
     """
     try:
@@ -344,7 +327,7 @@ def insertUser(conn, data):
         pVals=", ".join(["%s" for _ in range(len(paramOrder))])
     )
     params = [data[p] for p in paramOrder]
-    return insertData(conn, query, params)
+    return executeQuery(conn, query, params)
 
 def insertCourse(conn, data):
     """
@@ -357,7 +340,7 @@ def insertCourse(conn, data):
         pVals=", ".join(["%s" for _ in range(len(paramOrder))])
     )
     params = [data[p] for p in paramOrder]
-    return insertData(conn, query, params)
+    return executeQuery(conn, query, params)
 
 def insertStudentCourse(conn, data):
     """
@@ -366,7 +349,7 @@ def insertStudentCourse(conn, data):
     """
     query = "INSERT INTO coursesTaken (pid, cid) VALUES (%s, %s)"
     params = [data["pid"], data["cid"]]
-    return insertData(conn, query, params)
+    return executeQuery(conn, query, params)
 
 def insertProfCourse(conn, data):
     """
@@ -375,7 +358,7 @@ def insertProfCourse(conn, data):
     """
     query = "INSERT INTO coursesTaught (pid, cid) VALUES (%s, %s)"
     params = [data["pid"], data["cid"]]
-    return insertData(conn, query, params)
+    return executeQuery(conn, query, params)
 
 def insertTutorCourse(conn, data):
     """
@@ -384,7 +367,7 @@ def insertTutorCourse(conn, data):
     """
     query = "INSERT INTO tutors (pid, cid) VALUES (%s, %s)"
     params = [data["pid"], data["cid"]]
-    return insertData(conn, query, params)
+    return executeQuery(conn, query, params)
 
 def insertSession(conn, data):
     """
@@ -401,22 +384,9 @@ def insertSession(conn, data):
         pVals=", ".join(["%s" for _ in range(len(paramOrder))])
     )
     params = [data[p] for p in paramOrder]
-    return insertData(conn, query, params)
+    return executeQuery(conn, query, params)
 
 ### database interaction UPDATE functions ###
-
-def updateData(conn, query, params):
-    """
-    This function executes a given SQL UPDATE query and
-    returns True if the query is successful and False otherwise.
-    """
-    try:
-        curs = conn.cursor(MySQLdb.cursors.DictCursor)
-        curs.execute(query, params)
-        return True
-    except Exception as e:
-        print "Exception:", e
-        return False
 
 def updateSessionEndTime(conn, sid, endTime):
     """
@@ -425,4 +395,15 @@ def updateSessionEndTime(conn, sid, endTime):
     """
     query = "UPDATE sessions SET endTime=%s WHERE sid=%s"
     params = [endTime, sid]
-    return updateData(conn, query, params)
+    return executeQuery(conn, query, params)
+
+### database interaction DELETE functions ###
+
+def deleteSession(conn, sid):
+    """
+    Given a session's (unique) sid, this function will delete the session
+    data associated with this sid.
+    """
+    query = "DELETE FROM sessions WHERE sid=%s"
+    params = [sid]
+    return executeQuery(conn, query, params)
