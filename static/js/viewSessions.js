@@ -65,35 +65,10 @@ $(document).ready(function() {
 			"/getSession/",
 			{"sid": sid},
 			function(data) {
-				// var tutor = data.name;
-				// var student = data.student;
-				// var course = data.dept + " " + data.courseNum + "-" + data.section;
-				// var sessionType = data.sessionType;
-
-				var tutors = [
-					{"pid": 1, "name": "Kate", "selected": ""},
-					{"pid": 2, "name": "Angelina", "selected": "selected"},
-					{"pid": 3, "name": "Priscilla", "selected": ""}
-				];
-
-				var students = [
-					{"pid": 1, "name": "Kate", "selected": "selected"},
-					{"pid": 2, "name": "Angelina", "selected": ""},
-					{"pid": 3, "name": "Priscilla", "selected": ""}
-				];
-
-				var courses = [
-					{"cid": 1, "dept": "CS", "courseNum": 304, "section": 01, "selected": ""},
-					{"cid": 2, "dept": "CS", "courseNum": 251, "section": 01, "selected": ""},
-					{"cid": 3, "dept": "MATH", "courseNum": 305, "section": 01, "selected": ""},
-					{"cid": 4, "dept": "MATH", "courseNum": 206, "section": 02, "selected": "selected"}
-				];
-
-				var sessionTypes = [
-					{"sessionType": "Help Room", "selected": ""},
-					{"sessionType": "PLTC Assigned Tutoring", "selected": ""},
-					{"sessionType": "SI Session", "selected": "selected"}
-				];
+				var tutors = data.tutors;
+				var students = data.students;
+				var courses = data.courses;
+				var sessionTypes = data.sessionTypes;
 
 				createUpdateModalForm(modalId, tutors, students, courses, sessionTypes, sid);
 			});
@@ -113,7 +88,24 @@ $(document).ready(function() {
 	/* Here is the click event handler for the "confirm" update buttons.
 	*/
 	$(document).on("click", ".confirm_update", function() {
-		console.log($(this));
+		var form = $(this).closest(".modal").find("form")[0];
+		var modalId = $(this).closest(".modal")[0].id;
+
+		// Grab the form fields.
+		var tid = form.tutor.value;
+		var pid = form.student.value;
+		var cid = form.course.value;
+		var sessionType = form.sessionType.value;
+		var sid = form.sessionId.value;
+
+		// Update the session, using a post request.
+		$.post(
+			"/updateSession/",
+			{"sid": sid, "tid": tid, "pid": pid, "cid": cid, "sessionType": sessionType},
+			function(data) {
+				$("#" + modalId).modal("hide");
+				location.reload() // Force-refresh page, to display updated session
+			});
 	});
 
 	/* Here is the click event handler for the "confirm" delete buttons.

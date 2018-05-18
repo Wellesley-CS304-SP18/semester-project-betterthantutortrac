@@ -119,6 +119,10 @@ def findUsersByName(conn, name):
     params = ["%" + name + "%"]
     return getSqlQuery(conn, query, params)
 
+def findAllStudents(conn):
+    query = "SELECT pid, name FROM users WHERE userType='student'"
+    return getSqlQuery(conn, query)
+
 def findCourseById(conn, cid):
     """
     Given a course's (unique) cid, this function returns the course's data.
@@ -169,6 +173,17 @@ def findCoursesByTutor(conn, pid):
     params = [pid]
     return getSqlQuery(conn, query, params)
 
+def findCurrentCourses(conn):
+    timeNow = getCurrentTime()
+    # when the semester is not specified, classes are not in session.
+    if timeNow["semester"] == None:
+        return None
+
+    query = """SELECT cid, dept, courseNum, section FROM courses 
+WHERE courses.year=%s AND semester=%s"""
+    params = [timeNow["year"], timeNow["semester"]]
+    return getSqlQuery(conn, query, params)
+
 def findCurrentCoursesByStudent(conn, pid, dept=None):
     timeNow = getCurrentTime()
     # when the semester is not specified, classes are not in session.
@@ -207,8 +222,6 @@ def findMatchingCourseSectionsByStudent(conn, pid, cid):
     for p in courseParams:
         params.append(courseData[p])
         query += " AND {p}=%s".format(p=p)
-    print "params:", params
-    print "query:", query
     return getSqlQuery(conn, query, params)
 
 def findAllSessions(conn):
@@ -240,13 +253,7 @@ def findSessionById(conn, sid):
     information about the session (i.e. the information needed to display the
     sessions table on the viewSessions page.
     """
-    query = """SELECT * FROM 
-        (SELECT s.sid, s.tid, s.sessionType, u.name as student, c.dept, c.courseNum, c.section, s.beginTime, s.endTime 
-        FROM sessions AS s 
-        INNER JOIN users AS u USING (pid) 
-        INNER JOIN courses AS c USING (cid) 
-        WHERE sid=%s) AS temp 
-        INNER JOIN users WHERE (tid=pid);"""
+    query = """SELECT * FROM sessions WHERE sid=%s"""
     params = [sid]
     return getSqlQuery(conn, query, params, fetchall=False)
 
@@ -371,6 +378,15 @@ def updateSessionEndTime(conn, sid, endTime):
     """
     query = "UPDATE sessions SET endTime=%s WHERE sid=%s"
     params = [endTime, sid]
+    return executeQuery(conn, query, params)
+
+def updateSession(conn, sid, tid, pid, cid, sessionType):
+    """
+    Given a session's (unique) sid, this function updates the
+    session's tid, pid, cid, and sessionType.
+    """
+    query = "UPDATE sessions SET tid=%s, pid=%s, cid=%s, sessionType=%s WHERE sid=%s"
+    params = [tid, pid, cid, sessionType, sid]
     return executeQuery(conn, query, params)
 
 ### database interaction DELETE functions ###

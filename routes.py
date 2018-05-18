@@ -285,17 +285,74 @@ def getUserCourses():
 def getSession():
     conn = interactions.getConn()
     sid = request.form.get("sid")
-    # grab the session
+
+    # grab the current session information
+    # and populate 4 options (tutors, students, courses, sessionTypes)
+    # indicate current option using "selected" html tag
     session = interactions.findSessionById(conn, sid)
-    return jsonify(session)
+
+    # tutors
+    tutors = []
+    for item in interactions.findAllStudents(conn):
+        if (item["pid"] == session["tid"]):
+            item["selected"] = "selected"
+        else:
+            item["selected"] = ""
+        tutors.append(item)
+    if session["tid"] is None:
+        tutors.append({"pid": -1, "name": "Select a tutor", "selected": "selected"})
+
+    # students
+    students = []
+    for item in interactions.findAllStudents(conn):
+        if (item["pid"] == session["pid"]):
+            item["selected"] = "selected"
+        else:
+            item["selected"] = ""
+        students.append(item)
+
+    # courses
+    courses = []
+    for item in interactions.findCurrentCourses(conn):
+        if (item["cid"] == session["cid"]):
+            item["selected"] = "selected"
+        else:
+            item["selected"] = ""
+        courses.append(item)
+
+    # sessionTypes
+    sessionTypes = []
+    for item in interactions.findAllSessionTypes():
+        if item == session["sessionType"]:
+            sessionTypes.append({"sessionType": item, "selected": "selected"})
+        else: 
+            sessionTypes.append({"sessionType": item, "selected": ""})
+
+    result = {
+        "tutors": tutors, 
+        "students": students, 
+        "courses": courses, 
+        "sessionTypes": sessionTypes}
+    
+    return jsonify(result)
 
 @app.route("/deleteSession/", methods=["POST"])
 def deleteSession():
     conn = interactions.getConn()
     sid = request.form.get("sid")
     interactions.deleteSession(conn, sid)
+    flash("Session successfully deleted")
     return jsonify({"sid": sid})
 
 @app.route("/updateSession/", methods=["POST"])
 def updateSession():
-    print "updating session"
+    conn = interactions.getConn()
+    sid = request.form.get("sid")
+    tid = request.form.get("tid")
+    pid = request.form.get("pid")
+    cid = request.form.get("cid")
+    sessionType = request.form.get("sessionType")
+    interactions.updateSession(conn, sid, tid, pid, cid, sessionType)
+    flash("Session successfully updated")
+    return jsonify({"sid": sid})
+
