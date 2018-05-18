@@ -32,14 +32,9 @@ def loginRequired(f):
 
 ## logged_in/logged_out routes for CAS ##
 
-@app.route('/logged_in/')
-def logged_in():
+@app.route('/loggedIn/')
+def loggedIn():
     flash('Successfully logged in!', category="success")
-    return redirect(url_for('index'))
-
-@app.route('/logged_out/')
-def logged_out():
-    flash('Successfully logged out!', category="success")
     return redirect(url_for('index'))
 
 @app.route("/", methods=["GET", "POST"])
@@ -58,7 +53,7 @@ def index():
 
     # check if user is logged in via CAS
     if params["isLoggedIn"]:
-        username = session['CAS_USERNAME'] # seems prone to manipulation
+        username = session['CAS_USERNAME']
         user = interactions.findUsersByUsername(conn, username)[0]
         user["username"] = username
         user["firstName"] = user["name"].split()[0]

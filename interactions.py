@@ -115,13 +115,12 @@ def getSession(conn, sid):
     sessions table on the viewSessions page.
     """
     query = """SELECT * FROM 
-(SELECT s.sid, s.tid, s.sessionType, u.name as student, c.dept, c.courseNum, c.section, s.beginTime, s.endTime 
-FROM sessions AS s 
-INNER JOIN users AS u USING (pid) 
-INNER JOIN courses AS c USING (cid) 
-WHERE sid=%s) AS temp 
-INNER JOIN users WHERE (tid=pid);
-"""
+        (SELECT s.sid, s.tid, s.sessionType, u.name as student, c.dept, c.courseNum, c.section, s.beginTime, s.endTime 
+        FROM sessions AS s 
+        INNER JOIN users AS u USING (pid) 
+        INNER JOIN courses AS c USING (cid) 
+        WHERE sid=%s) AS temp 
+        INNER JOIN users WHERE (tid=pid);"""
     params = [sid]
     return getSqlQuery(conn, query, params) # False?
 

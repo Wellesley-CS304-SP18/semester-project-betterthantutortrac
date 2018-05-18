@@ -5,7 +5,8 @@ last modified: 05/13/2018
 description: module to define and insert some test data into our database.
 """
 
-from interactions import *
+import interactions as i
+import program as p
 
 userData = [
     {'pid': 1, 'name': 'Kate Kenneally', 'email': 'kkenneal@wellesley.edu', 
@@ -113,16 +114,16 @@ def insertData(conn, dataList, insertFunc, insertLabel):
         print "Finished:", insertLabel
 
 def insertAllData():
-    c = getConn()
-    insertData(c, userData, insertUser, "inserting users")
-    insertData(c, courseData, insertCourse, "inserting courses")
-    insertData(c, tutorCourseData, insertTutorCourse,
+    c = i.getConn()
+    insertData(c, userData, i.insertUser, "inserting users")
+    insertData(c, courseData, i.insertCourse, "inserting courses")
+    insertData(c, tutorCourseData, i.insertTutorCourse,
         "inserting tutor courses")
-    insertData(c, studentCourseData, insertStudentCourse, 
+    insertData(c, studentCourseData, i.insertStudentCourse, 
         "inserting student courses")
-    insertData(c, profCourseData, insertProfCourse, 
+    insertData(c, profCourseData, i.insertProfCourse, 
         "inserting prof courses")
-    insertData(c, sessionData, insertSession, "inserting sessions")
+    insertData(c, sessionData, i.insertSession, "inserting sessions")
 
 if __name__ == "__main__":
     insertAllData()
