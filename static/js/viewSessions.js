@@ -98,8 +98,9 @@ $(document).ready(function() {
 	/* Here is the click event handler for the "confirm" delete buttons.
 	*/
 	$(document).on("click", ".confirm_delete", function() {
-		console.log($(this)[0].value);
+		console.log($(this));
 		sid = $(this)[0].value;
+		modalId = $(this).closest(".modal")[0].id;
 
 		// Delete the session, using a post request.
 		$.post(
@@ -107,6 +108,9 @@ $(document).ready(function() {
 			{"sid": sid},
 			function(data) {
 				console.log("successfully deleted session " + data.sid);
+				console.log("modal id " + modalId);
+				$("#" + modalId).modal("hide");
+				location.reload() // Force-refresh page, to remove deleted session
 			});
 	});
 

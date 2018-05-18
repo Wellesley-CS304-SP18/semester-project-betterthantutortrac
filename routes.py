@@ -216,7 +216,7 @@ def viewSessions():
         # this could be different from the above, since department tutors
         # come attached to one specific class, but can tutor students
         # from different classes within the same department
-        tutorSessions = list(interactions.getSessions(conn, "pid", pid))
+        tutorSessions = list(interactions.findSessions(conn, "tid", pid))
         sessions += tutorSessions
 
     # add tutor names to sessions
