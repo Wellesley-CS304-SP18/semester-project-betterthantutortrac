@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% set active_page = "index" %}
+{% set activePage = "index" %}
 
 {% block content %}
 <h1 class="display-4">Hi{{ ' ' + user["firstName"] if isLoggedIn }}!</h1>
@@ -76,7 +76,6 @@
   </div>
   <div class="card-body">
     <ul class="list-group list-group-flush">
-      <a href="" class="list-group-item bg-light">Quick Stats</a>
       <a href="{{ url_for('viewSessions') }}" class="list-group-item bg-light">View Tutoring Sessions</a>
     </ul>
   </div>
