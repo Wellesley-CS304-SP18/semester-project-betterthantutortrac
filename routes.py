@@ -115,7 +115,7 @@ def index():
 @app.route("/newSession/", methods=["GET", "POST"])
 @loginRequired
 def newSession():
-    params = {}
+    params = {"isLoggedIn": True}
 
     conn = interactions.getConn()
     tid = session.get("tid")
@@ -181,7 +181,7 @@ def newSession():
 @app.route("/viewSessions/", methods=["GET"])
 @loginRequired
 def viewSessions():
-    params = {"title": "View Tutoring Sessions"}
+    params = {"title": "View Tutoring Sessions", "isLoggedIn": True}
 
     username = session['CAS_USERNAME']
     status = session['CAS_ATTRIBUTES']['cas:widmCode']
