@@ -17,7 +17,7 @@ function renderTemplate(templateSelector, data) {
   return rendered;
 }
 
-function createUpdateModalForm(modalId, tutor, student, course, sessionType) {
+function createUpdateModalForm(modalId, tutor, student, course, sessionType, sessionId) {
 	/* This function creates a modal that contains a form that allows
 	a user to update a session's information. The form is auto-populated
 	with the appropriate information.
@@ -29,33 +29,18 @@ function createUpdateModalForm(modalId, tutor, student, course, sessionType) {
 			"tutor": tutor,
 			"student": student,
 			"course": course,
-			"sessionType": sessionType
+			"sessionType": sessionType,
+			"sessionId": sessionId
 		}))
 	$("#" + modalId).modal();
 }
 
-function createDeleteModalForm(modalId) {
+function createDeleteModalForm(modalId, sessionId) {
 	/* This function creates a modal that confirms whether or not a user
 	really does want to delete a given session.
 	*/
-
-	// Create the modal (composed of header and body), based off of bootstrap template.
-	var modalHeader = '<div class="modal-header">';
-	modalHeader += '<h4 class="modal-title">Delete session?</h4></div>';
-
-	var modalBody = '<div class="modal-body">Do you really want to delete this session?</div>';
-
-	var modalFooter = '<div class="modal-footer">';
-	modalFooter += '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>';
-	modalFooter += '<button type="button" class="btn btn-primary">Delete</button>';
-	modalFooter += '</div>';
-
-	var modal = '<div id="' + modalId + '" class="modal fade" tabindex="-1" role="dialog">';
-	modal += '<div class="modal-dialog modal-lg" role="document">';
-	modal += '<div class="modal-content">' + modalHeader + modalBody + modalFooter + '</div></div></div>';
-
-	// Append modal to the DOM and show it.
-	$("body").append(modal);
+	$("body").append(
+		renderTemplate("#delete-modal-template", {"modalId": modalId, "sessionId": sessionId}))
 	$("#" + modalId).modal();
 }
 
@@ -64,12 +49,13 @@ It also binds the click event handlers to the update and delete buttons. */
 $(document).ready(function() {
 	$("#sessions-table").DataTable();
 
-	/* Here is the click event handler for the update buttons. Notices that we
+	/* Here is the click event handler for the update buttons. Note that these are the 
+	update buttons on the session table (that open the form modal). Notice that we
 	bind the handler to the document because jquery fails to bind to buttons that are 
 	dynamically added or that are not currently on the html page (i.e. on the 2nd page 
 	of the session tables). Credit to Angelina for this clever fix.
 	*/
-	$(document).on("click", ".update_button", function() {
+	$(document).on("click", ".update_modal", function() {
 		// Grab the sid.
 		var sid = $(this).val();
 		var modalId = "update_" + sid;
@@ -85,19 +71,47 @@ $(document).ready(function() {
 				var course = data.dept + " " + data.courseNum + "-" + data.section;
 				var sessionType = data.sessionType;
 
-				createUpdateModalForm(modalId, tutor, student, course, sessionType);
+				createUpdateModalForm(modalId, tutor, student, course, sessionType, sid);
 			});
 	});
 
-	/* Here is the click event handler for the delete buttons. This needs to be
+	/* Here is the click event handler for the delete buttons. Note that these are the
+	delete buttons on the view session table (that open the delete confirmation modals),
+	not the actual "confirm" delete buttons.
 	implemented. TODO(priscilla).
 	*/
-	$(document).on("click", ".delete_button", function() {
+	$(document).on("click", ".delete_modal", function() {
 		// Grab the sid.
 		var sid = $(this).val();
 		var modalId = "delete_" + sid;
 		console.log("deleting session (id " + sid + ")");
 
-		createDeleteModalForm(modalId);
+		createDeleteModalForm(modalId, sid);
 	});
+
+	/* Here is the click event handler for the "confirm" update buttons.
+	*/
+	$(document).on("click", ".confirm_update", function() {
+		console.log($(this));
+	});
+
+	/* Here is the click event handler for the "confirm" delete buttons.
+	*/
+	$(document).on("click", ".confirm_delete", function() {
+		console.log($(this));
+		sid = $(this)[0].value;
+		modalId = $(this).closest(".modal")[0].id;
+
+		// Delete the session, using a post request.
+		$.post(
+			"/deleteSession/",
+			{"sid": sid},
+			function(data) {
+				console.log("successfully deleted session " + data.sid);
+				console.log("modal id " + modalId);
+				$("#" + modalId).modal("hide");
+				location.reload() // Force-refresh page, to remove deleted session
+			});
+	});
+
 });

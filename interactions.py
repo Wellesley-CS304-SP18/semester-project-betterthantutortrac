@@ -26,7 +26,6 @@ def getConn(dsn=None):
     return dbconn2.connect(dsn)
 
 ### helper functions ###
-
 def getSqlDate(dt):
     """
     Given a datetime.datetime object, this function will return a string

@@ -288,3 +288,10 @@ def getSession():
     # grab the session
     session = interactions.findSessionById(conn, sid)
     return jsonify(session)
+
+@app.route("/deleteSession/", methods=["POST"])
+def deleteSession():
+    conn = interactions.getConn()
+    sid = request.form.get("sid")
+    interactions.deleteSession(conn, sid)
+    return jsonify({"sid": sid})
