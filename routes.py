@@ -295,3 +295,7 @@ def deleteSession():
     sid = request.form.get("sid")
     interactions.deleteSession(conn, sid)
     return jsonify({"sid": sid})
+
+@app.route("/updateSession/", methods=["POST"])
+def updateSession():
+    print "updating session"

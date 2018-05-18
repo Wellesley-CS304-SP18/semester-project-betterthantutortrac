@@ -17,7 +17,7 @@ function renderTemplate(templateSelector, data) {
   return rendered;
 }
 
-function createUpdateModalForm(modalId, tutor, student, course, sessionType, sessionId) {
+function createUpdateModalForm(modalId, tutors, students, courses, sessionTypes, sessionId) {
 	/* This function creates a modal that contains a form that allows
 	a user to update a session's information. The form is auto-populated
 	with the appropriate information.
@@ -26,10 +26,10 @@ function createUpdateModalForm(modalId, tutor, student, course, sessionType, ses
 		renderTemplate("#update-modal-template", 
 		{
 			"modalId": modalId,
-			"tutor": tutor,
-			"student": student,
-			"course": course,
-			"sessionType": sessionType,
+			"tutors": tutors,
+			"students": students,
+			"courses": courses,
+			"sessionTypes": sessionTypes,
 			"sessionId": sessionId
 		}))
 	$("#" + modalId).modal();
@@ -59,33 +59,54 @@ $(document).ready(function() {
 		// Grab the sid.
 		var sid = $(this).val();
 		var modalId = "update_" + sid;
-		console.log("updating session (id " + sid + ")");
 
 		// Grab the form fields, using a post request, and create an update modal form.
 		$.post(
 			"/getSession/",
 			{"sid": sid},
 			function(data) {
-				var tutor = data.name;
-				var student = data.student;
-				var course = data.dept + " " + data.courseNum + "-" + data.section;
-				var sessionType = data.sessionType;
+				// var tutor = data.name;
+				// var student = data.student;
+				// var course = data.dept + " " + data.courseNum + "-" + data.section;
+				// var sessionType = data.sessionType;
 
-				createUpdateModalForm(modalId, tutor, student, course, sessionType, sid);
+				var tutors = [
+					{"pid": 1, "name": "Kate", "selected": ""},
+					{"pid": 2, "name": "Angelina", "selected": "selected"},
+					{"pid": 3, "name": "Priscilla", "selected": ""}
+				];
+
+				var students = [
+					{"pid": 1, "name": "Kate", "selected": "selected"},
+					{"pid": 2, "name": "Angelina", "selected": ""},
+					{"pid": 3, "name": "Priscilla", "selected": ""}
+				];
+
+				var courses = [
+					{"cid": 1, "dept": "CS", "courseNum": 304, "section": 01, "selected": ""},
+					{"cid": 2, "dept": "CS", "courseNum": 251, "section": 01, "selected": ""},
+					{"cid": 3, "dept": "MATH", "courseNum": 305, "section": 01, "selected": ""},
+					{"cid": 4, "dept": "MATH", "courseNum": 206, "section": 02, "selected": "selected"}
+				];
+
+				var sessionTypes = [
+					{"sessionType": "Help Room", "selected": ""},
+					{"sessionType": "PLTC Assigned Tutoring", "selected": ""},
+					{"sessionType": "SI Session", "selected": "selected"}
+				];
+
+				createUpdateModalForm(modalId, tutors, students, courses, sessionTypes, sid);
 			});
 	});
 
 	/* Here is the click event handler for the delete buttons. Note that these are the
 	delete buttons on the view session table (that open the delete confirmation modals),
 	not the actual "confirm" delete buttons.
-	implemented. TODO(priscilla).
 	*/
 	$(document).on("click", ".delete_modal", function() {
 		// Grab the sid.
 		var sid = $(this).val();
 		var modalId = "delete_" + sid;
-		console.log("deleting session (id " + sid + ")");
-
 		createDeleteModalForm(modalId, sid);
 	});
 
@@ -98,7 +119,6 @@ $(document).ready(function() {
 	/* Here is the click event handler for the "confirm" delete buttons.
 	*/
 	$(document).on("click", ".confirm_delete", function() {
-		console.log($(this));
 		sid = $(this)[0].value;
 		modalId = $(this).closest(".modal")[0].id;
 
@@ -107,11 +127,8 @@ $(document).ready(function() {
 			"/deleteSession/",
 			{"sid": sid},
 			function(data) {
-				console.log("successfully deleted session " + data.sid);
-				console.log("modal id " + modalId);
 				$("#" + modalId).modal("hide");
 				location.reload() // Force-refresh page, to remove deleted session
 			});
 	});
-
 });
