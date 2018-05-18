@@ -54,7 +54,7 @@ def index():
     # check if user is logged in via CAS
     if params["isLoggedIn"]:
         username = session['CAS_USERNAME']
-        user = interactions.findUsersByUsername(conn, username)
+        user = interactions.findUser(conn, "username", username)
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
 
@@ -152,7 +152,7 @@ def newSession():
             # given by select object with name 'course'
             # this seems sort of a hassle - can fix this later
             courseIdName = "cid" if autoPop else "course"
-            userData = interactions.findUsersByUsername(conn, username)
+            userData = interactions.findUser(conn, "username", username)
 
             sessionData = { 
                 "tid": tid,
@@ -187,7 +187,7 @@ def viewSessions():
     status = session['CAS_ATTRIBUTES']['cas:widmCode']
 
     conn = interactions.getConn()
-    pid = interactions.findUsersByUsername(conn, username)['pid']
+    pid = interactions.findUser(conn, "username", username)['pid']
     if status == 'PROFESSOR':
         
         profCourses = interactions.findCoursesByProf(conn, pid)
@@ -222,9 +222,9 @@ def viewSessions():
     # add tutor names to sessions
     for sessionData in sessions:
         tid = sessionData['tid']
-        tutor = interactions.getUserName(conn, tid)
-        if len(tutor) != 0:
-            sessionData['tutor'] = tutor[0]['name']
+        tutor = interactions.findUser(conn, "pid", tid)
+        if tutor != None:
+            sessionData['tutor'] = tutor['name']
 
     # get unique sessions - this is inefficient, might want to change
     # in the future
@@ -243,7 +243,7 @@ def validateUser():
     autoPop = request.form.get("autoPop") == "true"
     cid = request.form.get("cid")
 
-    usersData = interactions.findUsersByUsername(conn, username)
+    usersData = interactions.findUser(conn, "username", username)
     data["validUsername"] = usersData != None
 
     if data["validUsername"] and autoPop:
@@ -266,7 +266,7 @@ def getUserCourses():
     username = request.form.get("username")
     dept = request.form.get("dept")
     # find user data and courses by username
-    userData = interactions.findUsersByUsername(conn, username)
+    userData = interactions.findUser(conn, "username", username)
     userCourses = interactions.findCurrentCoursesByStudent(
         conn, userData["pid"], dept=dept)
     # format data for front-end use

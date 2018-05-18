@@ -99,22 +99,14 @@ def getSqlQuery(conn, query, params=[], fetchall=True):
         return curs.fetchall()
     return curs.fetchone()
 
-def getUserName(conn, pid):
-    """
-    Given a user's (unique) pid, this function returns the user's name.
-    """
-    query = "SELECT name from users where pid=%s"
-    params = [pid]
-    return getSqlQuery(conn, query, params) # False?
-
-def findUsers(conn, searchTerm, searchValue):
+def findUser(conn, searchTerm, searchValue):
     """
     Given a user's (unique) searchTerm and searchValye, this function
     returns the specified user's data.
     """
-    if "searchTerm" == "username":
+    if searchTerm == "username":
         # just a wrapper around email searching
-        return findUsers(conn, "email", searchValue + "@wellesley.edu")
+        return findUser(conn, "email", searchValue + "@wellesley.edu")
     query = "SELECT * FROM users WHERE {}=%s".format(searchTerm)
     params = [searchValue]
     return getSqlQuery(conn, query, params, fetchall=False)
@@ -126,21 +118,6 @@ def findUsersByName(conn, name):
     query = "SELECT * FROM users WHERE name LIKE %s"
     params = ["%" + name + "%"]
     return getSqlQuery(conn, query, params)
-
-def findUsersByEmail(conn, email):
-    """
-    Given a user's (unique) email, this function returns the user's data.
-    """
-    query = "SELECT * FROM users WHERE email=%s"
-    params = [email]
-    return getSqlQuery(conn, query, params, fetchall=False)
-
-def findUsersByUsername(conn, username):
-    """
-    Given a user's (unique) username, this function returns the user's data.
-    """
-    email = username + "@wellesley.edu" # a wrapper around the last fn
-    return findUsersByEmail(conn, email)
 
 def findCourseById(conn, cid):
     """
