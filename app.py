@@ -14,7 +14,7 @@ app = Flask(__name__)
 # CAS configuration
 CAS(app)
 app.config["CAS_SERVER"] = "https://login.wellesley.edu:443"
-app.config["CAS_AFTER_LOGIN"] = "logged_in"
+app.config["CAS_AFTER_LOGIN"] = "loggedIn"
 app.config["CAS_LOGIN_ROUTE"] = "/module.php/casserver/cas.php/login"
 app.config["CAS_LOGOUT_ROUTE"] = "/module.php/casserver/cas.php/logout"
 app.config["CAS_AFTER_LOGOUT"] = "https://cs.wellesley.edu:1943/index"
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     availablePorts = {
         6251: 1947,
         6352: 1944,
-        7277: 1948
+        7277: 1947
     }
     port = availablePorts.get(systemPort, 1945)
     app.run("0.0.0.0", port)

@@ -27,19 +27,14 @@ def loginRequired(f):
             flash("Please login before accessing this page!", 
                 category="warning")
             return redirect(url_for("index"))
-        return f(*args, **args)
+        return f(*args, **kwargs)
     return decoratedFunction
 
 ## logged_in/logged_out routes for CAS ##
 
-@app.route('/logged_in/')
-def logged_in():
+@app.route('/loggedIn/')
+def loggedIn():
     flash('Successfully logged in!', category="success")
-    return redirect(url_for('index'))
-
-@app.route('/logged_out/')
-def logged_out():
-    flash('Successfully logged out!', category="success")
     return redirect(url_for('index'))
 
 @app.route("/", methods=["GET", "POST"])
@@ -58,7 +53,7 @@ def index():
 
     # check if user is logged in via CAS
     if params["isLoggedIn"]:
-        username = session['CAS_USERNAME'] # seems prone to manipulation
+        username = session['CAS_USERNAME']
         user = interactions.findUsersByUsername(conn, username)[0]
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
@@ -120,7 +115,7 @@ def index():
 @app.route("/newSession/", methods=["GET", "POST"])
 @loginRequired
 def newSession():
-    params = {}
+    params = {"isLoggedIn": True}
 
     conn = interactions.getConn()
     tid = session.get("tid")
@@ -186,7 +181,7 @@ def newSession():
 @app.route("/viewSessions/", methods=["GET"])
 @loginRequired
 def viewSessions():
-    params = {"title": "View Tutoring Sessions"}
+    params = {"title": "View Tutoring Sessions", "isLoggedIn": True}
 
     username = session['CAS_USERNAME']
     status = session['CAS_ATTRIBUTES']['cas:widmCode']

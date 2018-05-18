@@ -5,7 +5,7 @@ author/s: Angelina Li,
 description: module of helper functions to assist with main routes
 """
 
-import random, string
+import random
 import interactions
 from app import app
 from datetime import datetime
@@ -31,3 +31,4 @@ def logOutTutorSession(conn):
             loggedOut = False
             session.pop(c)
     return loggedOut
+
