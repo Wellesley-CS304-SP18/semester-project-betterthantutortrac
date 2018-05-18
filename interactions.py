@@ -27,6 +27,9 @@ def getConn(dsn=None):
 
 ### helper functions ###
 
+def deleteSession(conn, sid):
+    pass
+
 def getSqlDate(dt):
     """
     Given a datetime.datetime object, this function will return a string

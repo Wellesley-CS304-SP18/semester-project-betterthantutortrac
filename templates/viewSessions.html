@@ -30,10 +30,10 @@
         <td>{{ s.beginTime }}</td>
         <td>{{ s.endTime }}</td>
         <td>
-          <button type="button" class="btn btn-primary update_button" value="{{ s.sid }}">Update</button>
+          <button type="button" class="btn btn-primary update_modal" value="{{ s.sid }}">Update</button>
         </td>
         <td>
-          <button type="button" class="btn btn-danger delete_button" value="{{ s.sid }}">Delete</button>
+          <button type="button" class="btn btn-danger delete_modal" value="{{ s.sid }}">Delete</button>
         </td>
     </tr>
     {% endfor %}
@@ -47,8 +47,8 @@
 <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.js"></script>
 
-<!-- mustache tempaltes - wrapped in raw tag to prevent jinja2 interferance -->
-<!-- {% raw %} -->
+<!-- mustache templates - wrapped in raw tag to prevent jinja2 interferance -->
+{% raw %}
 <script id="update-modal-template" type="x-tmpl-mustache">
 <div id="{{ modalId }}" class="modal fade" tabindex="-1" role="dialog">
 <div class="modal-dialog modal-lg" role="document">
@@ -86,11 +86,26 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Update</button>
+        <button type="button" class="btn btn-primary confirm_update" value="{{ sessionId }}">Update</button>
     </div>
 </div></div></div>
 </script>
-<!-- {% endraw %} -->
+
+<script id="delete-modal-template" type="x-tmpl-mustache">
+<div id="{{ modalId }}" class="modal fade" tabindex="-1" role="dialog">
+<div class="modal-dialog modal-lg" role="document">
+<div class="modal-content">
+    <div class="modal-header">
+        <h4 class="modal-title">Delete session?</h4>
+    </div>
+    <div class="modal-body">Do you really want to delete this session?</div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary confirm_delete" value="{{ sessionId }}">Delete</button>
+    </div>
+</div></div></div>
+</script>
+{% endraw %}
 
 <!-- custom js -->
 <script src="{{ url_for('static', filename='js/viewSessions.js') }}"></script>
