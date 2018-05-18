@@ -185,7 +185,7 @@ def viewSessions():
 
     username = session['CAS_USERNAME']
     status = session['CAS_ATTRIBUTES']['cas:widmCode']
-
+    
     conn = interactions.getConn()
     pid = interactions.findUser(conn, "username", username)['pid']
     if status == 'PROFESSOR':
@@ -198,6 +198,28 @@ def viewSessions():
             cid = courseData['cid']
             pSessions = list(interactions.findSessions(conn, "cid", cid))
             sessions += pSessions
+
+        ### FOR SCOTT TESTING ###
+        # (since Scott is treated as a tutor, but CAS classifies him
+        # as a professor, we'll include the tutoring data collection here)
+
+        # next, find all courses that they tutor for
+        tutorCourses = interactions.findCoursesByTutor(conn, pid)
+        # find all sessions for any tutored courses,
+        # since tutors should have access to all such session data
+        for courseData in tutorCourses:
+            cid = courseData['cid']
+            cSessions = list(interactions.findSessions(conn, "cid", cid))
+            sessions += cSessions
+
+        # finally, find all sessions they tutored 
+        # this could be different from the above, since department tutors
+        # come attached to one specific class, but can tutor students 
+        # from different classes within the same department
+        tutorSessions = list(interactions.findSessions(conn, "tid", pid))
+        sessions += tutorSessions
+
+        ### END SCOTT TESTING ###
 
     elif status == 'STUDENT':
         # first, get all sessions in which the student is a tutee

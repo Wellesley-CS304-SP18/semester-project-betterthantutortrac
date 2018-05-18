@@ -9,8 +9,8 @@ import interactions as i
 import program as p
 
 userData = [
-    {'pid': 1, 'name': 'Kate Kenneally', 'email': 'kkenneal@wellesley.edu', 
-    'password': 'secret', 'permissions': 'admin', 'year': 2018, 
+    {'pid': 1, 'name': 'Kate Kenneally', 'email': 'kkenneal@wellesley.edu',
+    'password': 'secret', 'permissions': 'admin', 'year': 2018,
     'bnumber': 'B20746088', 'userType': 'student'},
     {'pid': 2, 'name': 'Angelina Li', 'email': 'ali6@wellesley.edu',
     'password': 'secret', 'permissions': 'admin', 'year': 2019,
@@ -35,13 +35,31 @@ userData = [
     'bnumber': None, 'userType': 'professor'},
     {'pid': 9, 'name': 'Fred Shultz', 'email': 'fshultz@wellesley.edu',
     'password': 'secret', 'permissions': 'prof', 'year': None,
-    'bnumber': None, 'userType': 'professor'}
+    'bnumber': None, 'userType': 'professor'},
+    {'pid': 10, 'name': 'Test1 Student1', 'email': 'tstudent1@wellesley.edu',
+     'password': 'secret', 'permissions': 'student', 'year': 2019,
+     'bnumber': 'B11111111', 'userType': 'student'},
+    {'pid': 11, 'name': 'Test2 Student2', 'email': 'tstudent2@wellesley.edu',
+     'password': 'secret', 'permissions': 'student', 'year': 2019,
+     'bnumber': 'B22222222', 'userType': 'student'},
+    {'pid': 12, 'name': 'Test3 Student3', 'email': 'tstudent3@wellesley.edu',
+     'password': 'secret', 'permissions': 'student', 'year': 2020,
+     'bnumber': 'B33333333', 'userType': 'student'},
+    {'pid': 13, 'name': 'Test4 Student4', 'email': 'tstudent4@wellesley.edu',
+     'password': 'secret', 'permissions': 'student', 'year': 2020,
+     'bnumber': 'B44444444', 'userType': 'student'},
+    {'pid': 14, 'name': 'Test5 Student5', 'email': 'tstudent5@wellesley.edu',
+     'password': 'secret', 'permissions': 'student', 'year': 2021,
+     'bnumber': 'B55555555', 'userType': 'student'},
+    {'pid': 15, 'name': 'Test6 Student6', 'email': 'tstudent6@wellesley.edu',
+     'password': 'secret', 'permissions': 'student', 'year': 2021,
+     'bnumber': 'B66666666', 'userType': 'student'}
 ]
 
 courseData = [
     {'cid': 1, 'dept': 'CS', 'courseNum': '304', 'section': '01',
     'year': 2018, 'semester': 'Spring'},
-    {'cid': 2, 'dept': 'CS', 'courseNum': '251', 'section': '01', 
+    {'cid': 2, 'dept': 'CS', 'courseNum': '251', 'section': '01',
     'year': 2018, 'semester': 'Spring'},
     {'cid': 3, 'dept': 'MATH', 'courseNum': '305', 'section': '01',
     'year': 2018, 'semester': 'Spring'},
@@ -71,7 +89,28 @@ studentCourseData = [
     {"pid": 2, "cid": 1},
     {"pid": 2, "cid": 4},
     {"pid": 3, "cid": 1},
-    {"pid": 3, "cid": 3}
+    {"pid": 3, "cid": 3},
+    {"pid": 10, "cid": 1},
+    {"pid": 10, "cid": 2},
+    {"pid": 10, "cid": 3},
+    {"pid": 10, "cid": 4},
+    {"pid": 11, "cid": 3},
+    {"pid": 11, "cid": 4},
+    {"pid": 11, "cid": 7},
+    {"pid": 11, "cid": 9},
+    {"pid": 12, "cid": 3},
+    {"pid": 12, "cid": 4},
+    {"pid": 12, "cid": 8},
+    {"pid": 12, "cid": 9},
+    {"pid": 13, "cid": 1},
+    {"pid": 13, "cid": 2},
+    {"pid": 13, "cid": 3},
+    {"pid": 14, "cid": 2},
+    {"pid": 14, "cid": 9},
+    {"pid": 14, "cid": 10},
+    {"pid": 15, "cid": 1},
+    {"pid": 15, "cid": 9},
+    {"pid": 15, "cid": 10}
 ]
 
 profCourseData = [
@@ -91,7 +130,11 @@ tutorCourseData = [
     {"pid": 2, "cid": 4},
     {"pid": 2, "cid": 7},
     {"pid": 2, "cid": 8},
-    {"pid": 3, "cid": 9}
+    {"pid": 3, "cid": 9},
+    {"pid": 4, "cid": 1},
+    {"pid": 4, "cid": 7},
+    {"pid": 4, "cid": 8},
+    {"pid": 4, "cid": 10}
 ]
 
 sessionData = [
@@ -119,9 +162,9 @@ def insertAllData():
     insertData(c, courseData, i.insertCourse, "inserting courses")
     insertData(c, tutorCourseData, i.insertTutorCourse,
         "inserting tutor courses")
-    insertData(c, studentCourseData, i.insertStudentCourse, 
+    insertData(c, studentCourseData, i.insertStudentCourse,
         "inserting student courses")
-    insertData(c, profCourseData, i.insertProfCourse, 
+    insertData(c, profCourseData, i.insertProfCourse,
         "inserting prof courses")
     insertData(c, sessionData, i.insertSession, "inserting sessions")
 
