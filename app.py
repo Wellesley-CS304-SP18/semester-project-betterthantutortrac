@@ -27,14 +27,14 @@ app.secret_key = "secretKey123"
 
 if __name__ == "__main__":
     app.debug = True
+    # each team member has a different CAS-allowed port,
+    # to aid in testing the app simultaneously
     systemPort = os.getuid()
-    # needed for CAS (1942 is scott's, 1943 and up is fine, stay in range of 1940s)
     availablePorts = {
-        6251: 1943, 
-        6352: 1944, 
-        7277: 1947
+        6251: 1947,
+        6352: 1944,
+        7277: 1948
     }
-    # use unique port for each person
-    port = availablePorts[systemPort] 
+    port = availablePorts.get(systemPort, 1945)
     app.run("0.0.0.0", port)
     print " * Key: " + app.secret_key  # print for debugging purposes
