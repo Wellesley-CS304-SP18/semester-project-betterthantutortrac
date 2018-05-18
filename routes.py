@@ -54,7 +54,7 @@ def index():
     # check if user is logged in via CAS
     if params["isLoggedIn"]:
         username = session['CAS_USERNAME']
-        user = interactions.findUsersByUsername(conn, username)[0]
+        user = interactions.findUsersByUsername(conn, username)
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
 
@@ -132,7 +132,7 @@ def newSession():
             category="warning")
         return redirect(url_for("index"))
     
-    tutorCourse = interactions.findCourseById(conn, tutorCourseId)[0]
+    tutorCourse = interactions.findCourseById(conn, tutorCourseId)
     params["autoPop"] = autoPop
     if autoPop:
         name = interactions.getCourseName(tutorCourse, includeSection=False)
@@ -152,7 +152,7 @@ def newSession():
             # given by select object with name 'course'
             # this seems sort of a hassle - can fix this later
             courseIdName = "cid" if autoPop else "course"
-            userData = interactions.findUsersByUsername(conn, username)[0]
+            userData = interactions.findUsersByUsername(conn, username)
 
             sessionData = { 
                 "tid": tid,
@@ -187,7 +187,7 @@ def viewSessions():
     status = session['CAS_ATTRIBUTES']['cas:widmCode']
 
     conn = interactions.getConn()
-    pid = interactions.findUsersByUsername(conn, username)[0]['pid']
+    pid = interactions.findUsersByUsername(conn, username)['pid']
     if status == 'PROFESSOR':
         
         profCourses = interactions.findCoursesByProf(conn, pid)
@@ -196,12 +196,12 @@ def viewSessions():
         # since professors should have access to all such session data
         for courseData in profCourses:
             cid = courseData['cid']
-            pSessions = list(interactions.findSessionsByCourse(conn, cid))
+            pSessions = list(interactions.findSessions(conn, "cid", cid))
             sessions += pSessions
 
     elif status == 'STUDENT':
         # first, get all sessions in which the student is a tutee
-        sessions = list(interactions.findSessionsByStudent(conn, pid))
+        sessions = list(interactions.findSessions(conn, "pid", pid))
 
         # next, find all courses that they tutor for
         tutorCourses = interactions.findCoursesByTutor(conn, pid)
@@ -209,14 +209,14 @@ def viewSessions():
         # since tutors should have access to all such session data
         for courseData in tutorCourses:
             cid = courseData['cid']
-            cSessions = list(interactions.findSessionsByCourse(conn, cid))
+            cSessions = list(interactions.findSessions(conn, "cid", cid))
             sessions += cSessions
 
         # finally, find all sessions they tutored
         # this could be different from the above, since department tutors
         # come attached to one specific class, but can tutor students
         # from different classes within the same department
-        tutorSessions = list(interactions.findSessionsByTutor(conn, pid))
+        tutorSessions = list(interactions.getSessions(conn, "pid", pid))
         sessions += tutorSessions
 
     # add tutor names to sessions
@@ -244,10 +244,10 @@ def validateUser():
     cid = request.form.get("cid")
 
     usersData = interactions.findUsersByUsername(conn, username)
-    data["validUsername"] = len(usersData) == 1
+    data["validUsername"] = usersData != None
 
     if data["validUsername"] and autoPop:
-        pid = usersData[0].get("pid")
+        pid = usersData.get("pid")
         userCourses = interactions.findMatchingCourseSectionsByStudent(
             conn, pid, cid)
 
@@ -266,7 +266,7 @@ def getUserCourses():
     username = request.form.get("username")
     dept = request.form.get("dept")
     # find user data and courses by username
-    userData = interactions.findUsersByUsername(conn, username)[0]
+    userData = interactions.findUsersByUsername(conn, username)
     userCourses = interactions.findCurrentCoursesByStudent(
         conn, userData["pid"], dept=dept)
     # format data for front-end use
@@ -286,7 +286,7 @@ def getSession():
     conn = interactions.getConn()
     sid = request.form.get("sid")
     # grab the session
-    session = interactions.getSession(conn, sid)[0]
+    session = interactions.findSessionById(conn, sid)
     return jsonify(session)
 
 @app.route("/deleteSession/", methods=["POST"])
