@@ -27,7 +27,7 @@ def loginRequired(f):
             flash("Please login before accessing this page!", 
                 category="warning")
             return redirect(url_for("index"))
-        return f(*args, **args)
+        return f(*args, **kwargs)
     return decoratedFunction
 
 ## logged_in/logged_out routes for CAS ##
