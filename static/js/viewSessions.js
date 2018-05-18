@@ -5,62 +5,32 @@ last modified: 05/13/2018
 description: JS code for viewSessions page
 */
 
+function renderTemplate(templateSelector, data) {
+  /* templateSelector: a jQuery selector representing a mustache template object.
+   * data: JSON data to populate the template with.
+   * This function will parse & render an object as formatted using the mustache
+   * templating engine, populated with the data as specified in data.
+   * */
+  var template = $(templateSelector).html();
+  Mustache.parse(template);
+  var rendered = Mustache.render(template, data);
+  return rendered;
+}
+
 function createUpdateModalForm(modalId, tutor, student, course, sessionType) {
 	/* This function creates a modal that contains a form that allows
 	a user to update a session's information. The form is auto-populated
 	with the appropriate information.
 	*/
-
-	// Create the form composed of form groups (to place inside a modal).
-	var tutorGroup = '<div class="form-group row">';
-	tutorGroup += '<label for="tutor" class="col-sm-2">Tutor</label>';
-	tutorGroup += '<div class="col-sm-8">';
-	tutorGroup += '<input type="text" class="form-control" id="tutor" ';
-	tutorGroup += 'placeHolder="Tutor name" value="' + tutor + '">';
-	tutorGroup += '</div></div>';
-
-	var studentGroup = '<div class="form-group row">';
-  studentGroup += '<label for="student" class="col-sm-2">Student</label>';
-	studentGroup += '<div class="col-sm-8">';
-  studentGroup += '<input type="text" class="form-control" id="student" ';
-	studentGroup += 'placeHolder="Student name" value="' + student + '">';
-	studentGroup += '</div></div>';
-
-	var courseGroup = '<div class="form-group row">';
-  courseGroup += '<label for="course" class="col-sm-2">Course</label>';
-	courseGroup += '<div class="col-sm-8">';
-  courseGroup += '<input type="text" class="form-control" id="course" ';
-	courseGroup += 'placeHolder="Course" value ="' + course + '">';
-	courseGroup += '</div></div>';
-
-	var sessionGroup = '<div class="form-group row">';
-	sessionGroup += '<label for="stype" class="col-sm-2">Session type</label>';
-	sessionGroup += '<div class="col-sm-8">';
-  sessionGroup += '<input type="text" class="form-control" id="stype" ';
-	sessionGroup += 'placeHolder="Session type" value="' + sessionType + '">';
-	sessionGroup += '</div></div>';
-
-	var form = '<form class="form-horizontal">';
-	form += tutorGroup + studentGroup + courseGroup + sessionGroup;
-	form += '</form>';
-
-	// Create the modal (composed of header and body), based off of bootstrap template.
-	var modalHeader = '<div class="modal-header">';
-	modalHeader += '<h4 class="modal-title">Update session information</h4></div>';
-
-	var modalBody = '<div class="modal-body">' + form + '</div>';
-
-	var modalFooter = '<div class="modal-footer">';
-	modalFooter += '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>';
-	modalFooter += '<button type="button" class="btn btn-primary">Update</button>';
-	modalFooter += '</div>';
-
-	var modal = '<div id="' + modalId + '" class="modal fade" tabindex="-1" role="dialog">';
-	modal += '<div class="modal-dialog modal-lg" role="document">';
-	modal += '<div class="modal-content">' + modalHeader + modalBody + modalFooter + '</div></div></div>';
-
-	// Append modal to the DOM and show it.
-	$("body").append(modal);
+	$("body").append(
+		renderTemplate("#update-modal-template", 
+		{
+			"modalId": modalId,
+			"tutor": tutor,
+			"student": student,
+			"course": course,
+			"sessionType": sessionType
+		}))
 	$("#" + modalId).modal();
 }
 
