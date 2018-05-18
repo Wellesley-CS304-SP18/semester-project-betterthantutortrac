@@ -52,6 +52,7 @@ def index():
             category="warning")
 
     # check if user is logged in via CAS
+    # additionally, verify that there are currently classes occuring
     if params["isLoggedIn"]:
         username = session['CAS_USERNAME']
         user = interactions.findUser(conn, "username", username)
@@ -59,7 +60,6 @@ def index():
         user["firstName"] = user["name"].split()[0]
 
         if request.method == "GET":
-            ## could replace this all if structuring schema differently
             # for tutors who tutor multiple sections of the same course,
             # the cid for their tutoring session will be for one section
             # of the course (order unspecified)

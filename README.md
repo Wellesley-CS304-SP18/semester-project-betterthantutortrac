@@ -1,22 +1,8 @@
 # Better Than TutorTrac
 
 Tasks:
-* Need some validation for inserting data: should only be able to create sessions for the current term
-* Definitely need to add some more commenting!!!
-* Refactoring tasks:
-    * Fix interactions such that find functions return only one value when appropriate (e.g. when searching on unique key)
-* Testing:
-    * Perhaps someone should be tasked with thinking of edge cases to try on our site
 
 Beta version:
-* Implement quick stats based on user type
-    * Some interesting questions we have the data to answer:
-        * Who has been to help room most frequently?
-        * Pivot table style - how many times has each student been coming to tutoring?
-        * Investigative - how many people come to each type of session? How many UNIQUE people?
-        * But also: obviously there are ethical problems with displaying user data, and potentially negative side effects of displaying certain numbers over others. What SHOULD we choose to implement?
-        * In the LR thinking about 'what the interesting questions are' sounds like a mini project in itself.
-            * What is the literature on how tutoring impacts students?
 * Re-imagine the relationship between tutors, courses and sessions. Currently, there is no distinction between department level tutors and course level tutors. (The best implementation we can do for department-level tutors currently is to just assign a department level tutor to all the courses in a particular department.) This creates several problems:
     * Tutors are allowed to choose whether or not they want to act like department level tutors by clicking the 'autoPop' box.
     * Tutors are allowed to enter sessions with students that aren't recorded as having the permission to tutor.
@@ -28,14 +14,9 @@ Beta version:
             * This would be pretty annoying to implement though (at what level do the time columns live? Imagine the amount of joins on that SQL query too)
     * While you're at it, maybe rethink the relationship between students and tutors too. Tutoring is currently a relation between a specific student and a specific tutor. But this is a sort of awkward way to represent real life tutoring. For instance, in one helproom, each student may interact with multiple different tutors. This is both a representational problem (the information the tutors table captures is not the complete set of information about a tutoring relation we might like to capture) and is maybe just an unwieldy way to think about this in genral. Maybe we should be thinking about multiple people - tutors as well as students - as 'checking in' to a tutoring session instead? Where constraints are that at least one tutor must be present? idk.. maybe this IS the easiest / best representation.
         * What is this data ultimately going to be used for? Maybe think more about the end user's use cases first...
-* If the tutor forgets to log out of a session, when their session data is popped, you should automatically infer their logout time, and then warn them not to do that again.
-    * Alternatively, if a tutor forgets to log out of a session somehow, maybe nag at them until they log out.
-        * e.g. keep on sending them annoying flashed messages until they log out. Although, this seems worse for data accuracy.
-* Only allow users to start sessions if there are currently classes occuring (i.e. school is not yet on break)
-    * Perhaps find a more extendible way to determine what the current semester and year are than hard-coding in values.
+* Perhaps find a more extendible way to determine what the current semester and year are than hard-coding in values.
     * Also find a more extendible way to configure tutor types?
         * Tutor types should be an attribute of each course (or dept maybe)?
-* Update js to use templating instead of manually creating strings
 * In view sessions:
     * Either: only display current sessions, or add in time columns
     * when clicking update, should bring up a window displaying all possible values we can update
@@ -49,12 +30,10 @@ Beta version:
         * Furthermore, consider whether usernames will always be dependable keys - do usernames ever change?
 * Go over all our sql queries:
     * Just verify again: are our sql queries (especially when we are manipulating raw query strings) safe to injections?
-    * Think about how we can collapse our queries more. e.g., it might be preferable to have general use find functions that use long conditionals to grab the relevant data instead of multiple specific use functions.
 * Have some way to enforce that tutors must be students?
 * Miscellaneous code quality things:
     * Standardize urls - should really be using url_for consistently
     * Should use containers on front end when we want them (e.g. on index page)
-    * should go through and change snake cased functions / routes / etc. to camel case
 * Refactor the boolean logic in our routes!
 * Allow tutors to add a list of users faster (one line per user)
 * Front end bonus points:
