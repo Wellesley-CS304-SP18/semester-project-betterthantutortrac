@@ -59,11 +59,12 @@ def index():
         user["username"] = username
         user["firstName"] = user["name"].split()[0]
 
-        if request.method == "GET":
+        # tutorCourses is None if no current courses
+        tutorCourses = interactions.findCurrentCoursesByTutor(conn, user["pid"])
+        if request.method == "GET" and tutorCourses:
             # for tutors who tutor multiple sections of the same course,
             # the cid for their tutoring session will be for one section
             # of the course (order unspecified)
-            tutorCourses = interactions.findCurrentCoursesByTutor(conn, user["pid"])
             uniqueCourseNames = []
             uniqueTutorCourses = []
             for c in tutorCourses:
