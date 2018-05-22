@@ -60,7 +60,7 @@ def getCurrentTime():
         "startDate": datetime.date(year=year, month=1, day=28),
         "endDate": datetime.date(year=year, month=5, day=21)}
     ]
-    semester = None
+    semester = "Fall"
     for s in semesters:
         if s["startDate"] <= now <= s["endDate"]:
             semester = s["name"]
