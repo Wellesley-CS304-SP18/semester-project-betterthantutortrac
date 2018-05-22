@@ -58,8 +58,13 @@ def getCurrentTime():
         "endDate": datetime.date(year=year, month=1, day=24)},
         {"name": "Spring",
         "startDate": datetime.date(year=year, month=1, day=28),
-        "endDate": datetime.date(year=year, month=5, day=21)}
-    ]
+        "endDate": datetime.date(year=year, month=6, day=3)}
+    ] 
+# note from Kate: I extended the end of the Spring semester 
+# from 5/21 to 6/3 so Scott can access Spring data and test the app.
+# need to handle in-between cases in the future:
+# currently gives a NoneType error when trying to get tutor courses
+# in routes.py
     semester = None
     for s in semesters:
         if s["startDate"] <= now <= s["endDate"]:
