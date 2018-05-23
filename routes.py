@@ -189,42 +189,31 @@ def viewSessions():
     
     conn = interactions.getConn()
     pid = interactions.findUser(conn, "username", username)['pid']
-    if status == 'PROFESSOR':
-        
-        profCourses = interactions.findCoursesByProf(conn, pid)
-        sessions = []
+    sessions = []
+
+    ## SCOTT TESTING NOTES ##
+    # It seems as though Scott's cas:widmCode is neither student nor
+    # professor. For now, we'll assume such people should be treated
+    # as *both* students and professors for ease of testing.
+    # In the future we may want to further investigate what the possible
+    # values this code can take on are and think about what we would
+    # like our program to do in those cases.
+    ## END SCOTT TESTING NOTES ##
+
+    # anyone except for students should be treated as professors
+    if status != 'STUDENT':
+        profcourses = interactions.findcoursesbyprof(conn, pid)
         # find all sessions for any taught courses,
         # since professors should have access to all such session data
-        for courseData in profCourses:
-            cid = courseData['cid']
-            pSessions = list(interactions.findSessions(conn, "cid", cid))
-            sessions += pSessions
+        for coursedata in profcourses:
+            cid = coursedata['cid']
+            psessions = list(interactions.findsessions(conn, "cid", cid))
+            sessions += psessions
 
-        ### FOR SCOTT TESTING ###
-        # (since Scott is treated as a tutor, but CAS classifies him
-        # as a professor, we'll include the tutoring data collection here)
-
-        # next, find all courses that they tutor for
-        tutorCourses = interactions.findCoursesByTutor(conn, pid)
-        # find all sessions for any tutored courses,
-        # since tutors should have access to all such session data
-        for courseData in tutorCourses:
-            cid = courseData['cid']
-            cSessions = list(interactions.findSessions(conn, "cid", cid))
-            sessions += cSessions
-
-        # finally, find all sessions they tutored 
-        # this could be different from the above, since department tutors
-        # come attached to one specific class, but can tutor students 
-        # from different classes within the same department
-        tutorSessions = list(interactions.findSessions(conn, "tid", pid))
-        sessions += tutorSessions
-
-        ### END SCOTT TESTING ###
-
-    elif status == 'STUDENT':
+    # anyone except for professors should be treated as students
+    elif status != 'PROFESSOR':
         # first, get all sessions in which the student is a tutee
-        sessions = list(interactions.findSessions(conn, "pid", pid))
+        sessions += list(interactions.findSessions(conn, "pid", pid))
 
         # next, find all courses that they tutor for
         tutorCourses = interactions.findCoursesByTutor(conn, pid)

@@ -33,7 +33,7 @@ if __name__ == "__main__":
     availablePorts = {
         6251: 1947,
         6352: 1944,
-        7277: 1947
+        7277: 1949
     }
     port = availablePorts.get(systemPort, 1945)
     app.run("0.0.0.0", port)
